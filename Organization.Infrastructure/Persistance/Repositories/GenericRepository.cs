@@ -1,0 +1,113 @@
+﻿using Dapper;
+using Organization.Application.Common.Interfaces.Persistance;
+using Organization.Application.Common.Utilities;
+using Organization.Domain.Common.Models;
+using Organization.Domain.Common.Utilities;
+using Organization.Infrastructure.Persistance.DataContext;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Organization.Infrastructure.Persistance.Repositories
+{
+    public class GenericRepository<T> : IGenericRepository<T> where T : IDbEntity
+    {
+        protected readonly DapperDataContext _dapperDataContext;
+        public GenericRepository(DapperDataContext dapperDataContext) 
+        { 
+            _dapperDataContext = dapperDataContext;
+        }
+
+        public async Task<string> AddAsync(T entity)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            parameters.Add("columnNames", typeof(T).GetDbTableColumnNames(new string[0]), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            parameters.Add("columnToUpdate", typeof(T).GetColumnValuesForUpdate(entity), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 20);
+            return await _dapperDataContext.Connection.ExecuteScalarAsync<string>("spInsertRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+        }
+
+        public async Task<IEnumerable<T>> GetAsync(QueryParameters queryParameters, params string[] selectData)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            parameters.Add("pageNumber", queryParameters.PageNo, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
+            parameters.Add("pageSize", queryParameters.PageSize, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
+            if (selectData.Length != 0)
+            {
+                parameters.Add("columns", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
+            }
+            using(var connection = _dapperDataContext.Connection)
+            {
+                return await connection.QueryAsync<T>("spGetRecords", parameters, commandType: System.Data.CommandType.StoredProcedure); 
+            }
+        }
+
+        public async Task<T> GetByIdAsync(string guid, params string[] selectData)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            parameters.Add("id", guid, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 22);
+            if(selectData.Length != 0)
+            {
+                parameters.Add("columms", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
+            }
+            using(var connection = _dapperDataContext.Connection)
+            {
+                return await connection.QuerySingleOrDefaultAsync<T>("spGetRecordsById", parameters, commandType: System.Data.CommandType.StoredProcedure); 
+            }
+        }
+
+        public async Task<int> GetTotalCountAsyc(T entity)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            using(var connection = _dapperDataContext.Connection)
+            {
+                return await connection.QuerySingleOrDefaultAsync<int>("spGetTotalRecordsCount", parameters, commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+
+        public async Task SoftDeleteAsync(string id, bool deleteFromRelatedChildTables)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            parameters.Add("id", id, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
+            await _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+            if (deleteFromRelatedChildTables)
+            {
+                foreach(var associatedType in typeof(T).GetAssociatedTypes())
+                {
+                    parameters = new DynamicParameters();
+                    parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+                    parameters.Add("foreignKeyColumnName", id, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+                    parameters.Add("foreignKeyColumnValue", id, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 20);
+                    await _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteForeignKeyRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                }
+            }
+        }
+
+        public async Task UpdateAsync(T entity)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            parameters.Add("columnToUpdate", typeof(T).GetColumnValuesForUpdate(entity), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            parameters.Add("id", entity.Id, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 20);
+            await _dapperDataContext.Connection.ExecuteAsync("spUpdateRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+        }
+
+        public async Task<bool> IsExistingAsync(string disinguishingUniqueKeyValue)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            parameters.Add("distinguishingUniqueKeyColumnName", typeof(T).GetDistinguishingUniqueKeyName(), System.Data.DbType.String, size: 100);
+            parameters.Add("distinguishingUniqueKeyColumnValue", disinguishingUniqueKeyValue, System.Data.DbType.String, size: 100);
+            using(var connection = _dapperDataContext.Connection)
+            {
+                return await connection.QuerySingleOrDefaultAsync<bool>("spDoesRecordEist", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+    }
+}
