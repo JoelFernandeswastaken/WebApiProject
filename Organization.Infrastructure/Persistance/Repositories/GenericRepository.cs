@@ -24,8 +24,8 @@ namespace Organization.Infrastructure.Persistance.Repositories
         {
             var parameters = new DynamicParameters();
             parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-            parameters.Add("columnNames", typeof(T).GetDbTableColumnNames(new string[0]), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-            parameters.Add("columnToUpdate", typeof(T).GetColumnValuesForUpdate(entity), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 20);
+            parameters.Add("columnNames", typeof(T).GetDbTableColumnNames(new string[0]), System.Data.DbType.String, System.Data.ParameterDirection.Input);
+            parameters.Add("columnValues", typeof(T).GetColumnValuesForInsert(entity), System.Data.DbType.String, System.Data.ParameterDirection.Input);
             return await _dapperDataContext.Connection.ExecuteScalarAsync<string>("spInsertRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
         }
 
