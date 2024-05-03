@@ -18,6 +18,10 @@ namespace Organization.Application.Common.Utilities
         {
             return type.GetCustomAttribute<TableNameAttribute>()?. NameValue ?? string.Empty;
         }
+        public static string GetDbColumnName(this PropertyInfo propertyInfo)
+        {
+            return propertyInfo.GetCustomAttribute<ColumnNameAttribute>()?.NameValue ?? string.Empty;
+        }
         public static string GetDbTableColumnNames(this Type type, string[] selectedProperties)
         {
             if (selectedProperties.Length < 1)
@@ -34,12 +38,6 @@ namespace Organization.Application.Common.Utilities
         {
             return string.Join(",", type.GetNonPrimaryKeyColumnProperties().Select(p => $"{p.GetDbColumnName()}='{p.GetValue(obj)}'"));
         }
-
-        public static string GetDbColumnName(this PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetCustomAttribute<ColumnNameAttribute>()?.NameValue ?? string.Empty;
-        }
-
         public static IEnumerable<string> ToLowerInvariant(this string[] source)
         {
             foreach (var item in source)
