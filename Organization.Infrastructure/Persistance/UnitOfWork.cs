@@ -11,6 +11,7 @@ namespace Organization.Infrastructure.Persistance
 {
     public class UnitOfWork : IUnitOfWork
     {
+        private bool _disposed;
         private readonly DapperDataContext _dapperDataContext;
         public ICompanyRepository Companies { get; private set; }
         public IEmployeeRepository Employees { get; private set; }
@@ -31,23 +32,40 @@ namespace Organization.Infrastructure.Persistance
         }
         public void Commit()
         {
-
+            _dapperDataContext.Transaction.Commit();
+            _dapperDataContext.Transaction.Dispose();
+            _dapperDataContext.Transaction = null;
         }
         public void CommitAndCloseConnection()
         {
-
+            _dapperDataContext.Transaction?.Commit();
+            _dapperDataContext.Transaction?.Dispose();
+            _dapperDataContext.Transaction = null;
+            _dapperDataContext.Connection?.Close();
+            _dapperDataContext.Connection.Dispose();
         }
         public void RollBack()
         {
-
+            _dapperDataContext.Transaction.Rollback();
+            _dapperDataContext.Transaction.Dispose();
+            _dapperDataContext.Transaction = null;
         }
         protected virtual void Dispose(bool disposing)
         {
-
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _dapperDataContext.Transaction.Dispose();
+                    _dapperDataContext.Connection?.Dispose();   
+                }
+                _disposed = true;
+            }
         }
         public void Dispose()
         {
-
+            Dispose(true);
+            GC.SuppressFinalize(this);  
         }
     }
 }
