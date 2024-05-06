@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Organization.Application.Common.DTO;
+using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Company.Models;
+using Organization.Infrastructure.Persistance;
 
 namespace Organization.Presentation.Api.Controllers
 {
@@ -8,7 +11,8 @@ namespace Organization.Presentation.Api.Controllers
     public class CompaniesController : Controller
     {
         private readonly List<Company> _companies;
-        public CompaniesController() 
+        private readonly IUnitOfWork _unitOfwork;
+        public CompaniesController(IUnitOfWork unitOfWork) 
         {
             _companies = new List<Company>()
             {
@@ -16,37 +20,60 @@ namespace Organization.Presentation.Api.Controllers
                 new Company() {Id = "TestId456", Name = "Company2"},
                 new Company() {Id = "TestId789", Name = "Company3"},
             };
+            _unitOfwork = unitOfWork;
         }
         [HttpGet]
+        [Route("/GetCompanies")]
         public async Task<IActionResult> GetCompanies()
         {
-            await Task.CompletedTask;
-            return Ok(_companies);
+            // await Task.CompletedTask;
+            var companies = await _unitOfwork.Companies.GetAsyncOld();
+            return Ok(companies);
         }
-        [HttpGet("/company/{id:Length(9)}")]
+        [HttpGet("/company/{id}")]
         public async Task<IActionResult> GetCompanyByid(string id)
         {
-            var found = _companies.Find(x => x.Id == id);
-            if (found == null)
+            var compayByID = await _unitOfwork.Companies.GetByIdAsync(id);
+            if (compayByID == null)
             {
-                return NotFound(found);
+                return NotFound(compayByID);
             }
-            else { return Ok(found); }
+            else { return Ok(compayByID); }
         }
         [HttpPost]
-        public async Task<IActionResult> AddCompany([FromForm] Company company)
-        {         
-            if(company.Id == null || company.Name == null) 
+        [Route("/AddCompany")]
+        public async Task<IActionResult> AddCompany(CompanyRequest companyRequest)
+        {
+            try
             {
-                return BadRequest(company);
+                //if(company.Id == null || company.Name == null) 
+                //{
+                //    return BadRequest(company);
+                //}
+                //else
+                //{
+                //    _companies.Add(company);
+                //    return CreatedAtAction("GetCompanyByid", new { id = company.Id }, company);
+                //}
+                string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
+                _unitOfwork.BeginTransaction();
+                var added = await _unitOfwork.Companies.AddAsync(new Company()
+                {
+                    Name = companyRequest.Name,
+                    Address = companyRequest.Address,
+                    Country = companyRequest.Country
+                });
+                _unitOfwork.CommitAndCloseConnection();
+                return Ok(added);
             }
-            else
+            catch(Exception ex)
             {
-                _companies.Add(company);
-                return CreatedAtAction("GetCompanyByid", new { id = company.Id }, company);
+                return BadRequest(ex.Message);
             }
+            
         }
         [HttpPut]
+        [Route("/UpdateCompany")]
         public async Task<IActionResult> UpdateCompany(string id, string name)
         {
             var requiredCompany = _companies.Find(x => x.Id == id);
@@ -61,6 +88,7 @@ namespace Organization.Presentation.Api.Controllers
             }
         }
         [HttpDelete]
+        [Route("/DeleteComany")]
         public async Task<IActionResult> DeleteCompany(string id)
         {
             var deleteCompany = _companies.Find(x => x.Id == id);
