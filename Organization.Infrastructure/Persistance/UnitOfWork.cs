@@ -56,7 +56,7 @@ namespace Organization.Infrastructure.Persistance
             {
                 if (disposing)
                 {
-                    _dapperDataContext.Transaction.Dispose();
+                    _dapperDataContext.Transaction?.Dispose();
                     _dapperDataContext.Connection?.Dispose();   
                 }
                 _disposed = true;
