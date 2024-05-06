@@ -22,14 +22,37 @@ namespace Organization.Infrastructure.Persistance.Repositories
 
         public async Task<string> AddAsync(T entity)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-            parameters.Add("columnNames", typeof(T).GetDbTableColumnNames(new string[0]), System.Data.DbType.String, System.Data.ParameterDirection.Input);
-            parameters.Add("columnValues", typeof(T).GetColumnValuesForInsert(entity), System.Data.DbType.String, System.Data.ParameterDirection.Input);
-            return await _dapperDataContext.Connection.ExecuteScalarAsync<string>("spInsertRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+            try
+            {
+                var parameters = new DynamicParameters();
+                parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+                var columnNames = typeof(T).GetDbTableColumnNames(new string[0]);
+                parameters.Add("columnNames", typeof(T).GetDbTableColumnNames(new string[0]), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 100);
+                var columnValues = typeof(T).GetColumnValuesForInsert(entity);
+                parameters.Add("columnValues", typeof(T).GetColumnValuesForInsert(entity), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 100);
+                var result = await _dapperDataContext?.Connection?.ExecuteScalarAsync<string>("spInsertRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                return result;
+            }
+            catch(Exception ex)
+            { 
+                throw;
+            }
+            
         }
-
-        public async Task<IEnumerable<T>> GetAsync(QueryParameters queryParameters, params string[] selectData)
+        public async Task<IEnumerable<T>> GetAsyncOld(params string[] selectData)
+        {
+            var parameters = new DynamicParameters();
+            parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+            if(selectData.Length != 0)
+            {
+                parameters.Add("columns", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
+            }
+            using(var connection =  _dapperDataContext.Connection) 
+            {
+                return await connection.QueryAsync<T>("spGetRecordsTemp", parameters, commandType: System.Data.CommandType.StoredProcedure);
+            }
+        }
+        public async Task<IEnumerable<T>> GetAsyncNew(QueryParameters queryParameters, params string[] selectData)
         {
             var parameters = new DynamicParameters();
             parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
