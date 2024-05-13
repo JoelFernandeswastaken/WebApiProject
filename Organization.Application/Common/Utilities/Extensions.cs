@@ -36,7 +36,7 @@ namespace Organization.Application.Common.Utilities
 
         public static string GetColumnValuesForUpdate<T>(this Type type, T obj)
         {
-            return string.Join(",", type.GetNonPrimaryKeyColumnProperties().Select(p => $"{p.GetDbColumnName()}='{p.GetValue(obj)}'"));
+            return string.Join(",", type.GetNonPrimaryKeyColumnProperties().Where(x => x.GetDbColumnName() != "IsDeleted").Select(p => $"{p.GetDbColumnName()}='{p.GetValue(obj)}'"));
         }
         public static IEnumerable<string> ToLowerInvariant(this string[] source)
         {
