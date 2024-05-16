@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO;
 using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Company.Models;
 using Organization.Infrastructure.Persistance;
+using System.Runtime.InteropServices;
 
 namespace Organization.Presentation.Api.Controllers
 {
@@ -26,19 +28,34 @@ namespace Organization.Presentation.Api.Controllers
         [Route("/GetCompanies")]
         public async Task<IActionResult> GetCompanies()
         {
-            // await Task.CompletedTask;
-            var companies = await _unitOfwork.Companies.GetAsyncOld();
-            return Ok(companies);
+            try
+            {
+                // await Task.CompletedTask;
+                var companies = await _unitOfwork.Companies.GetAsyncOld();
+                return Ok(companies);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
         }
         [HttpGet("/company/{id}")]
         public async Task<IActionResult> GetCompanyByid(string id)
         {
-            var compayByID = await _unitOfwork.Companies.GetByIdAsync(id);
-            if (compayByID == null)
+            try
             {
-                return NotFound(compayByID);
+                var compayByID = await _unitOfwork.Companies.GetByIdAsync(id);
+                if (compayByID == null)
+                {
+                    return NotFound(compayByID);
+                }
+                else { return Ok(compayByID); }
             }
-            else { return Ok(compayByID); }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
         [HttpPost]
         [Route("/AddCompany")]
@@ -59,15 +76,16 @@ namespace Organization.Presentation.Api.Controllers
                 string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
 
                 _unitOfwork.BeginTransaction();
-                var companyID = await _unitOfwork.Companies.AddAsync(new Company()
+                var id = _unitOfwork.Companies.AddAsync(new Company()
                 {
+                    Id = guid,
                     Name = companyRequest.Name,
                     Address = companyRequest.Address,
                     Country = companyRequest.Country
                 }); //Alter stored procedure to return id of company added
                 _unitOfwork.CommitAndCloseConnection();
 
-                return CreatedAtAction("GetCompanyByid", new { id = companyID }, companyRequest);
+                return CreatedAtAction("GetCompanyByid", new { id = id }, companyRequest);
             }
             catch(Exception ex)
             {
@@ -79,35 +97,32 @@ namespace Organization.Presentation.Api.Controllers
         [Route("/UpdateCompany")]
         public async Task<IActionResult> UpdateCompany(string id, CompanyRequest companyRequest)
         {
-            //var requiredCompany = _companies.Find(x => x.Id == id);
-            //if(requiredCompany == null)
-            //{
-            //    return NotFound();
-            //}
-            //else
-            //{
-            //    requiredCompany.Name = name;    
-            //    return Ok(_companies);
-            //}
-            _unitOfwork.BeginTransaction();
+            try
+            {            
+                var requiredCompany = await _unitOfwork.Companies.GetByIdAsync(id);
+                if (requiredCompany == null)
+                {
+                    return NotFound(requiredCompany);
+                }
+                if (requiredCompany.Id != id)
+                {
+                    return BadRequest(requiredCompany);
+                }
+                requiredCompany.Name = companyRequest.Name;
+                requiredCompany.Address = companyRequest.Address;
+                requiredCompany.Country = companyRequest.Country;
 
-            var requiredCompany = await _unitOfwork.Companies.GetByIdAsync(id);
-            if(requiredCompany == null) { 
-                return NotFound(requiredCompany);
+                _unitOfwork.BeginTransaction();
+                bool result = await _unitOfwork.Companies.UpdateAsync(requiredCompany);
+                _unitOfwork.CommitAndCloseConnection();
+
+                return result ? Ok("Record Updated successfully") : BadRequest("Something went wrong");
             }
-            if(requiredCompany.Id != id)
+            catch (Exception ex)
             {
-                return BadRequest(requiredCompany);
+                return BadRequest(ex.Message);
             }
-            requiredCompany.Name = companyRequest.Name;
-            requiredCompany.Address = companyRequest.Address;
-            requiredCompany.Country = companyRequest.Country;
-
-            await _unitOfwork.Companies.UpdateAsync(requiredCompany);
-
-            _unitOfwork.CommitAndCloseConnection();
-
-            return NoContent();
+            
         }
         [HttpDelete]
         [Route("/DeleteComany")]
@@ -124,21 +139,29 @@ namespace Organization.Presentation.Api.Controllers
             //    // return Ok(_companies);
             //    return NoContent ();    
             //}
-            var deleteCompany = await _unitOfwork.Companies.GetByIdAsync(id);
-            if (deleteCompany == null)
+            try
             {
-                return NotFound(deleteCompany);
+                var deleteCompany = await _unitOfwork.Companies.GetByIdAsync(id);
+                if (deleteCompany == null)
+                {
+                    return NotFound(deleteCompany);
+                }
+                if (deleteCompany.Id != id)
+                {
+                    return BadRequest(deleteCompany);
+                }
+
+                _unitOfwork.BeginTransaction();
+                await _unitOfwork.Companies.SoftDeleteAsync(deleteCompany.Id);
+                _unitOfwork.CommitAndCloseConnection();
+
+                return NoContent();
             }
-            if (deleteCompany.Id != id)
+            catch (Exception ex)
             {
-                return BadRequest(deleteCompany);
+                return BadRequest(ex.Message);
             }
-
-            _unitOfwork.BeginTransaction();
-            await _unitOfwork.Companies.SoftDeleteAsync(deleteCompany.Id);
-            _unitOfwork.CommitAndCloseConnection();
-
-            return NoContent();
+            
         }
     }
 }
