@@ -112,13 +112,30 @@ namespace Organization.Infrastructure.Persistance.Repositories
             }
         }
 
-        public async Task UpdateAsync(T entity)
+        public async Task<bool> UpdateAsync(T entity)
         {
+            try
+        {
+                string tableName = typeof(T).GetDbTableName();
+                string columnValuesForUpdate = typeof(T).GetColumnValuesForUpdate(entity);
+                System.Diagnostics.Debug.Write($"colunvaluesforupdate:{columnValuesForUpdate}");
+                string id = entity.Id;
+
             var parameters = new DynamicParameters();
-            parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-            parameters.Add("columnToUpdate", typeof(T).GetColumnValuesForUpdate(entity), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-            parameters.Add("id", entity.Id, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 20);
-            await _dapperDataContext.Connection.ExecuteAsync("spUpdateRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                parameters.Add("tableName", tableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+                parameters.Add("columnToUpdate", columnValuesForUpdate, System.Data.DbType.String, System.Data.ParameterDirection.Input);
+                parameters.Add("id", id, System.Data.DbType.String, System.Data.ParameterDirection.Input);
+                int rowsAffected = await  _dapperDataContext.Connection.ExecuteAsync("spUpdateRecord", parameters, transaction: _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                if (rowsAffected > 0)
+                    return true;
+                else
+                    return false;
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+            
         }
 
         public async Task<bool> IsExistingAsync(string disinguishingUniqueKeyValue)
