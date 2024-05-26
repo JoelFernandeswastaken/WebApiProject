@@ -24,14 +24,20 @@ namespace Organization.Infrastructure.Persistance.Repositories
         {
             try
             {
+                string tableName = typeof(T).GetDbTableName(); 
+                string columnNames = typeof(T).GetDbTableColumnNames(new string[0]);
+                string columnValues = typeof(T).GetColumnValuesForInsert(entity);
+
                 var parameters = new DynamicParameters();
-                parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-                var columnNames = typeof(T).GetDbTableColumnNames(new string[0]);
-                parameters.Add("columnNames", typeof(T).GetDbTableColumnNames(new string[0]), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 100);
-                var columnValues = typeof(T).GetColumnValuesForInsert(entity);
-                parameters.Add("columnValues", typeof(T).GetColumnValuesForInsert(entity), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 100);
-                var result = await _dapperDataContext?.Connection?.ExecuteScalarAsync<string>("spInsertRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
-                return result;
+                parameters.Add("tableName", tableName, DbType.String, ParameterDirection.Input, size: 50);
+                parameters.Add("columnNames", columnNames, DbType.String, ParameterDirection.Input);
+                parameters.Add("columnValues", columnValues, DbType.String, ParameterDirection.Input);
+
+                var result = _dapperDataContext.Connection.ExecuteScalarAsync<string>(
+                    "spInsertRecord", parameters, transaction: _dapperDataContext.Transaction, commandType: CommandType.StoredProcedure);
+
+                return result.Result;
+
             }
             catch(Exception ex)
             { 
@@ -42,11 +48,14 @@ namespace Organization.Infrastructure.Persistance.Repositories
         public async Task<IEnumerable<T>> GetAsyncOld(params string[] selectData)
         {
             var parameters = new DynamicParameters();
-            parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+
+            var tableName = typeof(T).GetDbTableName();
+            var columnNames = typeof(T).GetDbTableColumnNames(selectData);
+
+            parameters.Add("tableName", tableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
             if(selectData.Length != 0)
-            {
-                parameters.Add("columns", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
-            }
+                parameters.Add("columns", columnNames, System.Data.DbType.String, System.Data.ParameterDirection.Input);
+
             using(var connection =  _dapperDataContext.Connection) 
             {
                 return await connection.QueryAsync<T>("spGetRecordsTemp", parameters, commandType: System.Data.CommandType.StoredProcedure);
@@ -95,10 +104,16 @@ namespace Organization.Infrastructure.Persistance.Repositories
 
         public async Task SoftDeleteAsync(string id, bool deleteFromRelatedChildTables)
         {
+            try
+            {
+                //id = "76cf8907-8b76-4ae4-a25";
+               // string tableName = "tblCompanies";
+                string tableName = typeof(T).GetDbTableName();
             var parameters = new DynamicParameters();
-            parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-            parameters.Add("id", id, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
-            await _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                parameters.Add("tableName", tableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);        
+                parameters.Add("id", id, DbType.String, System.Data.ParameterDirection.Input);
+                var rowsAffected = _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                var result = rowsAffected.Result;
             if (deleteFromRelatedChildTables)
             {
                 foreach(var associatedType in typeof(T).GetAssociatedTypes())
