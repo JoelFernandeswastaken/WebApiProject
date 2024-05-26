@@ -63,16 +63,6 @@ namespace Organization.Presentation.Api.Controllers
         {
             try
             {
-                //if(company.Id == null || company.Name == null) 
-                //{
-                //    return BadRequest(company);
-                //}
-                //else
-                //{
-                //    _companies.Add(company);
-                //    return CreatedAtAction("GetCompanyByid", new { id = company.Id }, company);
-                //}
-
                 string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
 
                 _unitOfwork.BeginTransaction();
@@ -128,17 +118,6 @@ namespace Organization.Presentation.Api.Controllers
         [Route("/DeleteComany")]
         public async Task<IActionResult> DeleteCompany(string id)
         {
-            //var deleteCompany = _companies.Find(x => x.Id == id);
-            //if (deleteCompany == null)
-            //{
-            //    return NotFound();
-            //}
-            //else
-            //{
-            //    _companies.Remove(deleteCompany);
-            //    // return Ok(_companies);
-            //    return NoContent ();    
-            //}
             try
             {
                 var deleteCompany = await _unitOfwork.Companies.GetByIdAsync(id);
