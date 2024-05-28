@@ -10,11 +10,11 @@ namespace Organization.Domain.Common.Utilities
     public class AssociatedType
     {
         public Type Type { get;  }
-        public PropertyInfo ForeignKeyProperty { get; }
-        public AssociatedType(Type type, PropertyInfo foreignKey)
+        public string ForeignKeyProperty { get; }
+        public AssociatedType(Type type, string foreignKey)
         {
-            Type = type;
-            ForeignKeyProperty = foreignKey;
+            this.Type = type;
+            this.ForeignKeyProperty = foreignKey;
         }
     }
 }
