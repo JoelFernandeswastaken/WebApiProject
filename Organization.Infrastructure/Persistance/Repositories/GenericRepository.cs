@@ -6,7 +6,9 @@ using Organization.Domain.Common.Utilities;
 using Organization.Infrastructure.Persistance.DataContext;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -79,17 +81,24 @@ namespace Organization.Infrastructure.Persistance.Repositories
 
         public async Task<T> GetByIdAsync(string guid, params string[] selectData)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-            parameters.Add("id", guid, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 22);
-            if(selectData.Length != 0)
+            try
             {
-                parameters.Add("columms", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
+                var parameters = new DynamicParameters();
+                parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+                parameters.Add("id", guid, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 22);
+                if (selectData.Length != 0)
+                {
+                    parameters.Add("columms", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
+                }
+                using (var connection = _dapperDataContext.Connection)
+                {
+                    return await connection.QuerySingleOrDefaultAsync<T>("spGetRecordsById", parameters, commandType: System.Data.CommandType.StoredProcedure);
+                }
             }
-            using(var connection = _dapperDataContext.Connection)
+            catch(Exception ex)
             {
-                return await connection.QuerySingleOrDefaultAsync<T>("spGetRecordsById", parameters, commandType: System.Data.CommandType.StoredProcedure); 
-            }
+                throw ex;
+            }           
         }
 
         public async Task<int> GetTotalCountAsyc(T entity)
@@ -109,18 +118,18 @@ namespace Organization.Infrastructure.Persistance.Repositories
                 //id = "76cf8907-8b76-4ae4-a25";
                // string tableName = "tblCompanies";
                 string tableName = typeof(T).GetDbTableName();
-            var parameters = new DynamicParameters();
+                var parameters = new DynamicParameters();
                 parameters.Add("tableName", tableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);        
                 parameters.Add("id", id, DbType.String, System.Data.ParameterDirection.Input);
                 var rowsAffected = _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
                 var result = rowsAffected.Result;
-            if (deleteFromRelatedChildTables)
-            {
-                    foreach (var associatedType in typeof(T).GetAssociatedTypes())
+                if (deleteFromRelatedChildTables)
                 {
+                    foreach (var associatedType in typeof(T).GetAssociatedTypes())
+                    {
                         string tablename = associatedType.Type.GetDbTableName();
                         string columnName = associatedType.ForeignKeyProperty;
-                    parameters = new DynamicParameters();
+                        parameters = new DynamicParameters();
                         parameters.Add("tableName", tablename, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
                         parameters.Add("foreignKeyColumnName", columnName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
                         parameters.Add("foreignKeyColumnValue", id, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 22);
@@ -128,7 +137,7 @@ namespace Organization.Infrastructure.Persistance.Repositories
                         result += rowsAffected2.Result;
                     }
                 }
-                }
+            }
             catch(Exception ex)
             {
                 throw;
@@ -138,13 +147,13 @@ namespace Organization.Infrastructure.Persistance.Repositories
         public async Task<bool> UpdateAsync(T entity)
         {
             try
-        {
+            {
                 string tableName = typeof(T).GetDbTableName();
                 string columnValuesForUpdate = typeof(T).GetColumnValuesForUpdate(entity);
                 System.Diagnostics.Debug.Write($"colunvaluesforupdate:{columnValuesForUpdate}");
                 string id = entity.Id;
 
-            var parameters = new DynamicParameters();
+                var parameters = new DynamicParameters();
                 parameters.Add("tableName", tableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
                 parameters.Add("columnToUpdate", columnValuesForUpdate, System.Data.DbType.String, System.Data.ParameterDirection.Input);
                 parameters.Add("id", id, System.Data.DbType.String, System.Data.ParameterDirection.Input);
