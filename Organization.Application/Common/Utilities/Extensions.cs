@@ -57,7 +57,7 @@ namespace Organization.Application.Common.Utilities
         public static IEnumerable<AssociatedType> GetAssociatedTypes(this Type type)
         {
             foreach (var associationAttribute in type.GetProperties().Where(p => p.GetCustomAttribute<NavigationAttribute>() is not null).Select(p => p.GetCustomAttribute<NavigationAttribute>()))
-                yield return new AssociatedType(associationAttribute.AssociatedType, associationAttribute.AssociatedType.GetProperty(associationAttribute.AssociatedProperty));
+                yield return new AssociatedType(associationAttribute.AssociatedType, associationAttribute.AssociatedProperty);
 
         }
 
