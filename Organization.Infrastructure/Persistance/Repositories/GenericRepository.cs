@@ -116,14 +116,22 @@ namespace Organization.Infrastructure.Persistance.Repositories
                 var result = rowsAffected.Result;
             if (deleteFromRelatedChildTables)
             {
-                foreach(var associatedType in typeof(T).GetAssociatedTypes())
+                    foreach (var associatedType in typeof(T).GetAssociatedTypes())
                 {
+                        string tablename = associatedType.Type.GetDbTableName();
+                        string columnName = associatedType.ForeignKeyProperty;
                     parameters = new DynamicParameters();
-                    parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-                    parameters.Add("foreignKeyColumnName", id, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-                    parameters.Add("foreignKeyColumnValue", id, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 20);
-                    await _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteForeignKeyRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                        parameters.Add("tableName", tablename, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+                        parameters.Add("foreignKeyColumnName", columnName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+                        parameters.Add("foreignKeyColumnValue", id, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 22);
+                        var rowsAffected2 =  _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteForeignKeyRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                        result += rowsAffected2.Result;
+                    }
                 }
+                }
+            catch(Exception ex)
+            {
+                throw;
             }
         }
 

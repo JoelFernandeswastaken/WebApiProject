@@ -116,7 +116,7 @@ namespace Organization.Presentation.Api.Controllers
         }
         [HttpDelete]
         [Route("/DeleteComany")]
-        public async Task<IActionResult> DeleteCompany(string id)
+        public async Task<IActionResult> DeleteCompany(string id, bool deleteAssociations)
         {
             try
             {
@@ -129,9 +129,8 @@ namespace Organization.Presentation.Api.Controllers
                 {
                     return BadRequest(deleteCompany);
                 }
-
                 _unitOfwork.BeginTransaction();
-                await _unitOfwork.Companies.SoftDeleteAsync(deleteCompany.Id);
+                await _unitOfwork.Companies.SoftDeleteAsync(deleteCompany.Id, deleteAssociations);
                 _unitOfwork.CommitAndCloseConnection();
 
                 return NoContent();
