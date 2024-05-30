@@ -2,6 +2,7 @@
 using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO;
 using Organization.Application.Common.Interfaces.Persistance;
+using Organization.Domain.Common.Utilities;
 using Organization.Domain.Company.Models;
 using Organization.Infrastructure.Persistance;
 using System.Runtime.InteropServices;
@@ -9,6 +10,7 @@ using System.Runtime.InteropServices;
 namespace Organization.Presentation.Api.Controllers
 {
     [ApiController]
+    [DisableApi]
     [Route("api/[controller]")]
     public class CompaniesController : Controller
     {
