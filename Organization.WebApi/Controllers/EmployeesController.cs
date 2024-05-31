@@ -2,11 +2,15 @@
 using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO;
 using Organization.Application.Common.Interfaces.Persistance;
+using Organization.Domain.Common.Utilities;
 using Organization.Domain.Employee.Models;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Organization.Presentation.Api.Controllers
 {
+    [ApiController]
+    [DisableApi]
+    [Route("[controller]")]
     public class EmployeesController : Controller
     {
         private IUnitOfWork _unitOfWork;
@@ -39,24 +43,34 @@ namespace Organization.Presentation.Api.Controllers
         [Route("AddEmployee")]
         public async Task<IActionResult> AddEmployee(EmployeeRequest employee)
         {
-            DateTime createdOn, modifiedOn, now;
-            string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
-            _unitOfWork.BeginTransaction();
-            DateTime.TryParseExact(DateTime.Now.ToString(), sqlServerDateFormat, null, System.Globalization.DateTimeStyles.None, out now);
-            var id = _unitOfWork.Employees.AddAsync(new Employee()
+            try
             {
-                Id = guid,
-                Name = employee.name,
-                Position = employee.position,   
-                CompanyId = employee.companyID,
-                CreatedOn = now,
-                ModifiedOn = now,  
-                Salary = employee.salary,
-                Age = employee.age
-            });
-            _unitOfWork.CommitAndCloseConnection();
+                string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
+                _unitOfWork.BeginTransaction();
+                // bool convert = DateTime.TryParseExact(DateTime.Now.ToString(), sqlServerDateFormat, null, System.Globalization.DateTimeStyles.None, out now);
+                string now = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+                var id = await _unitOfWork.Employees.AddAsync(new Employee()
+                {
+                    Id = guid,
+                    Name = employee.name,
+                    Position = employee.position,
+                    CompanyId = employee.companyID,
+                    CreatedOn = now,
+                    ModifiedOn = now,
+                    Salary = employee.salary,
+                    Age = employee.age
+                });
+                _unitOfWork.CommitAndCloseConnection();
 
-            return CreatedAtAction("GetEmployeeByID", new { id = id }, employee);            
+                if (id == guid)
+                    return CreatedAtAction("GetEmployeeByID", new { id = id }, employee);
+                else
+                    return BadRequest("Something went wrong");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }                    
         }
 
         [HttpPut]
@@ -76,7 +90,7 @@ namespace Organization.Presentation.Api.Controllers
                 requiredEmployee.CompanyId = employeeRequest.companyID; 
                 requiredEmployee.Salary = employeeRequest.salary;
                 requiredEmployee.Position = employeeRequest.position;
-                requiredEmployee.ModifiedOn = DateTime.Now;
+                requiredEmployee.ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
 
                 _unitOfWork.BeginTransaction();
                 var result = await _unitOfWork.Employees.UpdateAsync(requiredEmployee);
