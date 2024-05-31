@@ -24,8 +24,8 @@ namespace Organization.Domain.Employee.Models
         [ColumnName("Salary")]
         public decimal Salary { get; set; }
         [ColumnName("CreatedOn")]
-        public DateTime CreatedOn { get; set; }
+        public string CreatedOn { get; set; }
         [ColumnName("ModifiedOn")]
-        public DateTime ModifiedOn { get; set; }
+        public string ModifiedOn { get; set; }
     }
 }
