@@ -35,10 +35,11 @@ namespace Organization.Infrastructure.Persistance.Repositories
                 parameters.Add("columnNames", columnNames, DbType.String, ParameterDirection.Input);
                 parameters.Add("columnValues", columnValues, DbType.String, ParameterDirection.Input);
 
-                var result = _dapperDataContext.Connection.ExecuteScalarAsync<string>(
+                var result = await _dapperDataContext.Connection.ExecuteScalarAsync<string>(
                     "spInsertRecord", parameters, transaction: _dapperDataContext.Transaction, commandType: CommandType.StoredProcedure);
 
-                return result.Result;
+                return result;
+                // return result.Result;
 
             }
             catch(Exception ex)
