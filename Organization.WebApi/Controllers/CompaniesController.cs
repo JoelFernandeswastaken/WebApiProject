@@ -14,16 +14,9 @@ namespace Organization.Presentation.Api.Controllers
     [Route("api/[controller]")]
     public class CompaniesController : Controller
     {
-        private readonly List<Company> _companies;
         private readonly IUnitOfWork _unitOfwork;
         public CompaniesController(IUnitOfWork unitOfWork) 
         {
-            _companies = new List<Company>()
-            {
-                new Company() {Id = "TestId123", Name = "Company1"},
-                new Company() {Id = "TestId456", Name = "Company2"},
-                new Company() {Id = "TestId789", Name = "Company3"},
-            };
             _unitOfwork = unitOfWork;
         }
         [HttpGet]
