@@ -37,7 +37,7 @@ namespace Organization.Domain.Common.Utilities
             var builder = new ConfigurationBuilder().SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
             _configuration = builder.Build();
             var apiToDisable = _configuration.GetSection("DisableAPIs").Get<List<string>>();
-            if(apiToDisable.Count > 0)
+            if(apiToDisable?.Count > 0)
                 apiToDisable.Select(a => "/" + a.Trim()).Where(b => swaggerDoc.Paths.ContainsKey(b)).ToList().ForEach(x => swaggerDoc.Paths.Remove(x));
         }
         // return forbidden when endpoint hit
