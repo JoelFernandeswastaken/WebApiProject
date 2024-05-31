@@ -10,6 +10,7 @@ namespace Organization.Presentation.Api.Controllers
     public class EmployeesController : Controller
     {
         private IUnitOfWork _unitOfWork;
+        public string sqlServerDateFormat = "yyyy-dd-MM HH:mm:ss";
         public EmployeesController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -38,16 +39,18 @@ namespace Organization.Presentation.Api.Controllers
         [Route("AddEmployee")]
         public async Task<IActionResult> AddEmployee(EmployeeRequest employee)
         {
+            DateTime createdOn, modifiedOn, now;
             string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
             _unitOfWork.BeginTransaction();
+            DateTime.TryParseExact(DateTime.Now.ToString(), sqlServerDateFormat, null, System.Globalization.DateTimeStyles.None, out now);
             var id = _unitOfWork.Employees.AddAsync(new Employee()
             {
                 Id = guid,
                 Name = employee.name,
                 Position = employee.position,   
                 CompanyId = employee.companyID,
-                CreatedOn = DateTime.Now,
-                ModifiedOn = DateTime.Now,  
+                CreatedOn = now,
+                ModifiedOn = now,  
                 Salary = employee.salary,
                 Age = employee.age
             });
