@@ -26,7 +26,7 @@ namespace Organization.Presentation.Api.Controllers
         {
             try
             {
-                var result = await _unitOfWork.Employees.GetAsyncOld();
+                var result = await _unitOfWork.Employees.GetAsyncV1();
                 return Ok(result);
             }
             catch(Exception ex)

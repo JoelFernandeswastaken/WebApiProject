@@ -48,7 +48,7 @@ namespace Organization.Infrastructure.Persistance.Repositories
             }
             
         }
-        public async Task<IEnumerable<T>> GetAsyncOld(params string[] selectData)
+        public async Task<IEnumerable<T>> GetAsyncV1(params string[] selectData)
         {
             var parameters = new DynamicParameters();
 
@@ -64,7 +64,7 @@ namespace Organization.Infrastructure.Persistance.Repositories
                 return await connection.QueryAsync<T>("spGetRecordsTemp", parameters, commandType: System.Data.CommandType.StoredProcedure);
             }
         }
-        public async Task<IEnumerable<T>> GetAsyncNew(QueryParameters queryParameters, params string[] selectData)
+        public async Task<IEnumerable<T>> GetAsyncV2(QueryParameters queryParameters, params string[] selectData)
         {
             var parameters = new DynamicParameters();
             parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);

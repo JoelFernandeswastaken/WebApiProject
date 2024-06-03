@@ -26,7 +26,7 @@ namespace Organization.Presentation.Api.Controllers
             try
             {
                 // await Task.CompletedTask;
-                var companies = await _unitOfwork.Companies.GetAsyncOld();
+                var companies = await _unitOfwork.Companies.GetAsyncV1();
                 return Ok(companies);
             }
             catch (Exception ex)
