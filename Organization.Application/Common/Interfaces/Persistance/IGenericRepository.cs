@@ -16,7 +16,7 @@ namespace Organization.Application.Common.Interfaces.Persistance
         Task<T> GetByIdAsync (string guid, params string[] selectData);
         Task<string> AddAsync(T entity);
         Task<bool> UpdateAsync(T entity);
-        Task SoftDeleteAsync(string id, bool deleteFromRelatedChildTables = false);
+        Task<int> SoftDeleteAsync(string id, bool deleteFromRelatedChildTables = false);
         Task<int> GetTotalCountAsyc(T entity);
         Task<bool> IsExistingAsync(string disinguishingUniqueKeyValue);
     }

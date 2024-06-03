@@ -112,7 +112,7 @@ namespace Organization.Infrastructure.Persistance.Repositories
             }
         }
 
-        public async Task SoftDeleteAsync(string id, bool deleteFromRelatedChildTables)
+        public async Task<int> SoftDeleteAsync(string id, bool deleteFromRelatedChildTables)
         {
             try
             {
@@ -122,8 +122,8 @@ namespace Organization.Infrastructure.Persistance.Repositories
                 var parameters = new DynamicParameters();
                 parameters.Add("tableName", tableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);        
                 parameters.Add("id", id, DbType.String, System.Data.ParameterDirection.Input);
-                var rowsAffected = _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
-                var result = rowsAffected.Result;
+                var rowsAffectedParentTable = _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                int result = rowsAffectedParentTable.Result;
                 if (deleteFromRelatedChildTables)
                 {
                     foreach (var associatedType in typeof(T).GetAssociatedTypes())
@@ -134,10 +134,11 @@ namespace Organization.Infrastructure.Persistance.Repositories
                         parameters.Add("tableName", tablename, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
                         parameters.Add("foreignKeyColumnName", columnName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
                         parameters.Add("foreignKeyColumnValue", id, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 22);
-                        var rowsAffected2 =  _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteForeignKeyRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
-                        result += rowsAffected2.Result;
+                        var rowsAffectedChildTable =  _dapperDataContext.Connection.ExecuteAsync("spSoftDeleteForeignKeyRecord", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+                        result += rowsAffectedChildTable.Result;
                     }
                 }
+                return result;
             }
             catch(Exception ex)
             {
