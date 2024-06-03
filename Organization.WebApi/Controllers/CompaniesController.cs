@@ -11,7 +11,7 @@ namespace Organization.Presentation.Api.Controllers
 {
     [ApiController]
     [DisableApi]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class CompaniesController : Controller
     {
         private readonly IUnitOfWork _unitOfwork;
@@ -31,7 +31,7 @@ namespace Organization.Presentation.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
             
         }
@@ -49,7 +49,7 @@ namespace Organization.Presentation.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
         [HttpPost]
@@ -74,7 +74,7 @@ namespace Organization.Presentation.Api.Controllers
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
             
         }
@@ -105,7 +105,7 @@ namespace Organization.Presentation.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
             
         }
@@ -125,14 +125,20 @@ namespace Organization.Presentation.Api.Controllers
                     return BadRequest(deleteCompany);
                 }
                 _unitOfwork.BeginTransaction();
-                await _unitOfwork.Companies.SoftDeleteAsync(deleteCompany.Id, deleteAssociations);
+                int rowsAffected = await _unitOfwork.Companies.SoftDeleteAsync(deleteCompany.Id, deleteAssociations);
                 _unitOfwork.CommitAndCloseConnection();
 
-                return NoContent();
+                if (rowsAffected == 0)
+                    return Ok("No rows Affected");
+                else if (rowsAffected > 0)
+                    return Ok($"{rowsAffected} rows Affected");
+                else
+                    return BadRequest("Bad Request");
+
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
             
         }
