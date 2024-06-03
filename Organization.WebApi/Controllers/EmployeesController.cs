@@ -24,19 +24,33 @@ namespace Organization.Presentation.Api.Controllers
         [Route("GetEmployees")]
         public async Task<IActionResult> GetEmployees()
         {
-            var result = await _unitOfWork.Employees.GetAsyncOld();
-            return Ok(result);
+            try
+            {
+                var result = await _unitOfWork.Employees.GetAsyncOld();
+                return Ok(result);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet]
         [Route("Employee/{id}")]
         public async Task<IActionResult> GetEmployeeByID(string id)
         {
-            var employee = await _unitOfWork.Employees.GetByIdAsync(id);
-            if(employee == null)
-                return NotFound();
-            else 
-                return Ok(employee);
+            try
+            {
+                var employee = await _unitOfWork.Employees.GetByIdAsync(id);
+                if (employee == null)
+                    return NotFound();
+                else
+                    return Ok(employee);
+            }
+           catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPost]
@@ -46,17 +60,16 @@ namespace Organization.Presentation.Api.Controllers
             try
             {
                 string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
+
                 _unitOfWork.BeginTransaction();
-                // bool convert = DateTime.TryParseExact(DateTime.Now.ToString(), sqlServerDateFormat, null, System.Globalization.DateTimeStyles.None, out now);
-                string now = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
                 var id = await _unitOfWork.Employees.AddAsync(new Employee()
                 {
                     Id = guid,
                     Name = employee.name,
                     Position = employee.position,
                     CompanyId = employee.companyID,
-                    CreatedOn = now,
-                    ModifiedOn = now,
+                    CreatedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),
+                    ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),
                     Salary = employee.salary,
                     Age = employee.age
                 });
@@ -69,7 +82,7 @@ namespace Organization.Presentation.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }                    
         }
 
@@ -77,39 +90,61 @@ namespace Organization.Presentation.Api.Controllers
         [Route("UpdateEmployee")]
         public async Task<IActionResult> UpdateEmployee(string id, EmployeeRequest employeeRequest)
         {
-            var requiredEmployee = await _unitOfWork.Employees.GetByIdAsync(id);
-            if(requiredEmployee == null) 
-                return NotFound(employeeRequest);
-            else
+            try
             {
-                if(requiredEmployee.Id != id)
-                     return BadRequest(requiredEmployee.Id);
+                var requiredEmployee = await _unitOfWork.Employees.GetByIdAsync(id);
 
-                requiredEmployee.Name = employeeRequest.name;
-                requiredEmployee.Age = employeeRequest.age;
-                requiredEmployee.CompanyId = employeeRequest.companyID; 
-                requiredEmployee.Salary = employeeRequest.salary;
-                requiredEmployee.Position = employeeRequest.position;
-                requiredEmployee.ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+                if (requiredEmployee == null)
+                    return NotFound(employeeRequest);
+                else
+                {
+                    if (requiredEmployee.Id != id)
+                        return BadRequest(requiredEmployee.Id);
 
-                _unitOfWork.BeginTransaction();
-                var result = await _unitOfWork.Employees.UpdateAsync(requiredEmployee);
-                _unitOfWork.CommitAndCloseConnection();
+                    requiredEmployee.Name = employeeRequest.name;
+                    requiredEmployee.Age = employeeRequest.age;
+                    requiredEmployee.CompanyId = employeeRequest.companyID;
+                    requiredEmployee.Salary = employeeRequest.salary;
+                    requiredEmployee.Position = employeeRequest.position;
+                    requiredEmployee.ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
 
-                return result ? Ok("Record Updated successfully") : BadRequest("Something went wrong");
+                    _unitOfWork.BeginTransaction();
+                    var result = await _unitOfWork.Employees.UpdateAsync(requiredEmployee);
+                    _unitOfWork.CommitAndCloseConnection();
+
+                    return result ? Ok("Record Updated successfully") : BadRequest("Something went wrong");
+                }
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
         [HttpDelete]
         [Route("DelelteEmployee")]
         public async Task<IActionResult> DeleteEmployee(string id)
         {
-            var employeeToDelete = _unitOfWork.Employees.GetByIdAsync(id);
-            if (employeeToDelete == null)
-                return NotFound(employeeToDelete);
-            _unitOfWork.BeginTransaction();
-            await _unitOfWork.Employees.SoftDeleteAsync(id);
-            _unitOfWork.CommitAndCloseConnection();
-            return NoContent();
+            try
+            {
+                var employeeToDelete = _unitOfWork.Employees.GetByIdAsync(id);
+                if (employeeToDelete == null)
+                    return NotFound(employeeToDelete);
+
+                _unitOfWork.BeginTransaction();
+                int rowsAffected = await _unitOfWork.Employees.SoftDeleteAsync(id);
+                _unitOfWork.CommitAndCloseConnection();
+
+                if (rowsAffected == 0)
+                    return Ok("No rows Affected");
+                else if (rowsAffected > 0)
+                    return Ok($"{rowsAffected} rows Affected");
+                else
+                    return BadRequest("Bad Request");
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message); 
+            }
         }
     }
 }
