@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO;
 using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Common.Utilities;
+using Organization.Domain.Company;
 using Organization.Domain.Company.Models;
 using Organization.Infrastructure.Persistance;
 using System.Runtime.InteropServices;
@@ -20,7 +21,7 @@ namespace Organization.Presentation.Api.Controllers
             _unitOfwork = unitOfWork;
         }
         [HttpGet]
-        [Route("/GetCompanies")]
+        [Route("GetCompanies")]
         public async Task<IActionResult> GetCompanies()
         {
             try
@@ -35,7 +36,24 @@ namespace Organization.Presentation.Api.Controllers
             }
             
         }
-        [HttpGet("/company/{id}")]
+        [HttpGet]
+        [Route("GetCompaniesV2")]
+        public async Task<IActionResult> GetCompanies([FromQuery]CompanyQueryParameters queryParameters)
+        {
+            try
+            {
+
+                var result = await _unitOfwork.Companies.GetAsyncV2(queryParameters);
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
+        [HttpGet("company/{id}")]
         public async Task<IActionResult> GetCompanyByid(string id)
         {
             try
@@ -53,7 +71,7 @@ namespace Organization.Presentation.Api.Controllers
             }
         }
         [HttpPost]
-        [Route("/AddCompany")]
+        [Route("AddCompany")]
         public async Task<IActionResult> AddCompany(CompanyRequest companyRequest)
         {
             try
@@ -79,7 +97,7 @@ namespace Organization.Presentation.Api.Controllers
             
         }
         [HttpPut]
-        [Route("/UpdateCompany")]
+        [Route("UpdateCompany")]
         public async Task<IActionResult> UpdateCompany(string id, CompanyRequest companyRequest)
         {
             try
@@ -110,7 +128,7 @@ namespace Organization.Presentation.Api.Controllers
             
         }
         [HttpDelete]
-        [Route("/DeleteComany")]
+        [Route("DeleteComany")]
         public async Task<IActionResult> DeleteCompany(string id, bool deleteAssociations)
         {
             try
