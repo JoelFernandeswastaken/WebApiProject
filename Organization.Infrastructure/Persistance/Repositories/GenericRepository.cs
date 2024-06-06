@@ -61,22 +61,29 @@ namespace Organization.Infrastructure.Persistance.Repositories
 
             using(var connection =  _dapperDataContext.Connection) 
             {
-                return await connection.QueryAsync<T>("spGetRecordsTemp", parameters, commandType: System.Data.CommandType.StoredProcedure);
+                return await connection.QueryAsync<T>("spGetRecordsV1", parameters, commandType: System.Data.CommandType.StoredProcedure);
             }
         }
         public async Task<IEnumerable<T>> GetAsyncV2(QueryParameters queryParameters, params string[] selectData)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-            parameters.Add("pageNumber", queryParameters.PageNo, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
-            parameters.Add("pageSize", queryParameters.PageSize, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
-            if (selectData.Length != 0)
+            try
             {
-                parameters.Add("columns", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
+                var parameters = new DynamicParameters();
+                parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+                parameters.Add("pageNumber", queryParameters.PageNo, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
+                parameters.Add("pageSize", queryParameters.PageSize, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
+                if (selectData.Length != 0)
+                {
+                    parameters.Add("columns", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
+                }
+                using (var connection = _dapperDataContext.Connection)
+                {
+                    return await connection.QueryAsync<T>("spGetRecordsV2", parameters, commandType: System.Data.CommandType.StoredProcedure);
+                }
             }
-            using(var connection = _dapperDataContext.Connection)
+            catch(Exception ex)
             {
-                return await connection.QueryAsync<T>("spGetRecords", parameters, commandType: System.Data.CommandType.StoredProcedure); 
+                throw;
             }
         }
 
