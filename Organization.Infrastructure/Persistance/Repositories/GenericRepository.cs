@@ -72,9 +72,10 @@ namespace Organization.Infrastructure.Persistance.Repositories
                 parameters.Add("tableName", typeof(T).GetDbTableName(), System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
                 parameters.Add("pageNumber", queryParameters.PageNo, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
                 parameters.Add("pageSize", queryParameters.PageSize, System.Data.DbType.Int32, System.Data.ParameterDirection.Input);
+                parameters.Add("sortOrder", queryParameters.SortOrder, System.Data.DbType.String, System.Data.ParameterDirection.Input);
                 if (selectData.Length != 0)
                 {
-                    parameters.Add("columns", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
+                    parameters.Add("columnName", typeof(T).GetDbTableColumnNames(selectData), System.Data.DbType.String, System.Data.ParameterDirection.Input);
                 }
                 using (var connection = _dapperDataContext.Connection)
                 {

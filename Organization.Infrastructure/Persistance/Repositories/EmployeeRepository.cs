@@ -1,4 +1,7 @@
-﻿using Organization.Application.Common.Interfaces.Persistance;
+﻿using Organization.Application.Common.DTO;
+using Organization.Application.Common.Interfaces.Persistance;
+using Organization.Application.Common.Utilities;
+using Organization.Domain.Employee;
 using Organization.Domain.Employee.Models;
 using Organization.Infrastructure.Persistance.DataContext;
 using System;
@@ -13,6 +16,18 @@ namespace Organization.Infrastructure.Persistance.Repositories
     {
         public EmployeeRepository(DapperDataContext dapperDataContext) : base(dapperDataContext)
         {
+        }
+
+        public async Task<PageList<EmployeeResponse>> GetEmployeesByQueryAsyc(EmployeeQueryParameters queryParameters)
+        {
+            var employees = (await GetAsyncV2(queryParameters, "Name", "Age", "Position", "Salary", "CreatedOn")).AsQueryable().Select(s => new EmployeeResponse { 
+                Name = s.Name,
+                Age = s.Age,
+                Salary = (int)s.Salary,
+                CreatedOn = s.CreatedOn,
+            });
+            var pagedEmployees = PageList<EmployeeResponse>.Create(employees, queryParameters.PageNo, queryParameters.PageSize, 10000);
+            return pagedEmployees;
         }
     }
 }

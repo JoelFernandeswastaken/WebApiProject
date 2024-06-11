@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO;
 using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Common.Utilities;
+using Organization.Domain.Employee;
 using Organization.Domain.Employee.Models;
 using System.Security.Cryptography.X509Certificates;
 
@@ -22,7 +23,7 @@ namespace Organization.Presentation.Api.Controllers
 
         [HttpGet]
         [Route("GetEmployees")]
-        public async Task<IActionResult> GetEmployees()
+        public async Task<IActionResult> GetEmployeesV1()
         {
             try
             {
@@ -30,6 +31,21 @@ namespace Organization.Presentation.Api.Controllers
                 return Ok(result);
             }
             catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("GetEmployees2")]
+        public async Task<IActionResult> GetEmployeesV2([FromQuery] EmployeeQueryParameters queryParameters)
+        {
+            try
+            {
+                var result = await _unitOfWork.Employees.GetEmployeesByQueryAsyc(queryParameters);
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }

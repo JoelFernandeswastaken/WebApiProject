@@ -43,7 +43,7 @@ namespace Organization.Presentation.Api.Controllers
             try
             {
 
-                var result = await _unitOfwork.Companies.GetAsyncV2(queryParameters);
+                var result = await _unitOfwork.Companies.GetCompaniesByQueryAsync(queryParameters);
                 return Ok(result);
 
             }
