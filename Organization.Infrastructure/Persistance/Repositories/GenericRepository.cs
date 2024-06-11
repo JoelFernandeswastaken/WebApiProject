@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Organization.Infrastructure.Persistance.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : IDbEntity
+    public class GenericRepository<T> : IGenericRepository<T> // where T : IDbEntity
     {
         protected readonly DapperDataContext _dapperDataContext;
         public GenericRepository(DapperDataContext dapperDataContext) 

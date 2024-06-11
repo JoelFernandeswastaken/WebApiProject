@@ -28,7 +28,12 @@ namespace Organization.Infrastructure.Persistance.Repositories
                 Address = s.Address
             });
 
+            if (!string.IsNullOrEmpty(queryParameters.CompanyName))
+                companies.Where(s => s.Name.Contains(queryParameters.CompanyName.ToLowerInvariant()));
+
+
             var pagedCompanies = PageList<CompanyResponse>.Create(companies, queryParameters.PageNo, queryParameters.PageSize, 10000);
+
             return pagedCompanies;
         }
     }

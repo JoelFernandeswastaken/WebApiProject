@@ -11,6 +11,7 @@ namespace Organization.Domain.Common.Utilities
         private int _maxPageSize = 100;
         private int _pageSize = 100;
         private string _sortOrder = "asc";
+        private string _sortBy = "PagingOrder";
 
         public int PageNo { get; set; } = 1;
         public int PageSize
@@ -36,7 +37,18 @@ namespace Organization.Domain.Common.Utilities
                     _sortOrder = value;
             }
         }
-        public string SortBy { get; set; } = "PagingOrder";
+        public string SortBy
+        {
+            get
+            {
+                return _sortBy;
+            }
+            set
+            {
+                if (value == "PagingOrder")
+                    _sortBy = value;
+            }
+        }
     }
     
 
