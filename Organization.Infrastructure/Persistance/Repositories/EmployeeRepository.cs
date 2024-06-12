@@ -26,6 +26,10 @@ namespace Organization.Infrastructure.Persistance.Repositories
                 Salary = (int)s.Salary,
                 CreatedOn = s.CreatedOn,
             });
+
+            if(!string.IsNullOrEmpty(queryParameters.EmployeeName))
+                employees = employees.Where(s => s.Name.ToLowerInvariant().Contains(queryParameters.EmployeeName.ToLowerInvariant()));
+
             var pagedEmployees = PageList<EmployeeResponse>.Create(employees, queryParameters.PageNo, queryParameters.PageSize, 10000);
             return pagedEmployees;
         }

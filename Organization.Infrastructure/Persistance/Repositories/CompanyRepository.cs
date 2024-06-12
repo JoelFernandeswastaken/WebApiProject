@@ -29,7 +29,7 @@ namespace Organization.Infrastructure.Persistance.Repositories
             });
 
             if (!string.IsNullOrEmpty(queryParameters.CompanyName))
-                companies.Where(s => s.Name.Contains(queryParameters.CompanyName.ToLowerInvariant()));
+                companies = companies.Where(s => s.Name.ToLowerInvariant().Contains(queryParameters.CompanyName.ToLowerInvariant()));
 
 
             var pagedCompanies = PageList<CompanyResponse>.Create(companies, queryParameters.PageNo, queryParameters.PageSize, 10000);
