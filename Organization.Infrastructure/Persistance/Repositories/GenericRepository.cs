@@ -112,12 +112,16 @@ namespace Organization.Infrastructure.Persistance.Repositories
 
         public async Task<int> GetTotalCountAsyc(T entity)
         {
-            var parameters = new DynamicParameters();
-            parameters.Add("tableName", typeof(T).GetDbTableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-            using(var connection = _dapperDataContext.Connection)
+            try
             {
-                return await connection.QuerySingleOrDefaultAsync<int>("spGetTotalRecordsCount", parameters, commandType: System.Data.CommandType.StoredProcedure);
+                var parameters = new DynamicParameters();
+                string tablename = typeof(T).GetDbTableName();
+                parameters.Add("tableName", tablename, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
+                using (var connection = _dapperDataContext.Connection)
+                    return await connection.ExecuteScalarAsync<int>("spGetTotalRecordsCount", parameters, commandType: System.Data.CommandType.StoredProcedure);             
             }
+            catch(Exception ex) { throw ex; }
+            
         }
 
         public async Task<int> SoftDeleteAsync(string id, bool deleteFromRelatedChildTables)
