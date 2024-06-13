@@ -37,7 +37,7 @@ namespace Organization.Presentation.Api.Controllers
         }
 
         [HttpGet]
-        [Route("GetEmployees2")]
+        [Route("GetEmployees/V2")]
         public async Task<IActionResult> GetEmployeesV2([FromQuery] EmployeeQueryParameters queryParameters)
         {
             try

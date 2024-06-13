@@ -37,7 +37,7 @@ namespace Organization.Presentation.Api.Controllers
             
         }
         [HttpGet]
-        [Route("GetCompaniesV2")]
+        [Route("GetCompanies/V2")]
         public async Task<IActionResult> GetCompanies([FromQuery]CompanyQueryParameters queryParameters)
         {
             try
