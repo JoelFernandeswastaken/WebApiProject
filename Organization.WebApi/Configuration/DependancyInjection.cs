@@ -42,7 +42,7 @@ namespace Organization.Presentation.Api.Configuration
                 options.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
                 options.AssumeDefaultVersionWhenUnspecified = true;
                 // options.ApiVersionReader = new QueryStringApiVersionReader("organizationAppTest-api-version"); // query string method for api versioning (here api url remains the same for all versions)
-                options.ApiVersionReader = new HeaderApiVersionReader("X-API-Version"); // for header versioning (version passed in header)
+                // options.ApiVersionReader = new HeaderApiVersionReader("X-API-Version"); // for header versioning (version passed in header)
             });
 
             // configure swagger to work with versioning

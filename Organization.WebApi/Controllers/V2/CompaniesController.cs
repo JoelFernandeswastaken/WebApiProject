@@ -14,7 +14,6 @@ namespace Organization.Presentation.Api.Controllers.V2
     [ApiController]
     [DisableApi]
     // [Route("[controller]")]
-    // [Route("v2/[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
     public class CompaniesController : Controller
@@ -171,7 +170,7 @@ namespace Organization.Presentation.Api.Controllers.V2
             try
             {
                 var company = new Company();
-                int count = await _unitOfwork.Companies.GetTotalCountAsyc(company);
+                var count = await _unitOfwork.Companies.GetTotalCountAsyc(company);
                 return Ok(count);
             }
             catch (Exception ex)

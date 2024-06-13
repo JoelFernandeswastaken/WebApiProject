@@ -12,8 +12,8 @@ namespace Organization.Presentation.Api.Controllers.V1
 {
     [ApiController]
     [DisableApi]
-    [Route("[controller]")]
-    //[Route("v{v:apiVersion}/[controller]")]
+    // [Route("[controller]")]
+    [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
     public class CompaniesController : Controller
     {

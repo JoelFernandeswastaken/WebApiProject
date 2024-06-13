@@ -11,9 +11,10 @@ namespace Organization.Presentation.Api.Controllers.V2
 {
     [ApiController]
     [DisableApi]
+    // [Route("[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    //[Route("[controller]")]
+
     public class EmployeesController : Controller
     {
         private IUnitOfWork _unitOfWork;
