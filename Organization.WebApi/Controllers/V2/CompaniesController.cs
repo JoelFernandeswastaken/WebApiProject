@@ -5,18 +5,22 @@ using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Common.Utilities;
 using Organization.Domain.Company;
 using Organization.Domain.Company.Models;
+using Organization.Domain.Employee.Models;
 using Organization.Infrastructure.Persistance;
 using System.Runtime.InteropServices;
 
-namespace Organization.Presentation.Api.Controllers
+namespace Organization.Presentation.Api.Controllers.V2
 {
     [ApiController]
     [DisableApi]
-    [Route("[controller]")]
+    // [Route("[controller]")]
+    // [Route("v2/[controller]")]
+    [Route("v{v:apiVersion}/[controller]")]
+    [ApiVersion("2.0")]
     public class CompaniesController : Controller
     {
         private readonly IUnitOfWork _unitOfwork;
-        public CompaniesController(IUnitOfWork unitOfWork) 
+        public CompaniesController(IUnitOfWork unitOfWork)
         {
             _unitOfwork = unitOfWork;
         }
@@ -34,11 +38,11 @@ namespace Organization.Presentation.Api.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-            
+
         }
         [HttpGet]
-        [Route("GetCompanies/V2")]
-        public async Task<IActionResult> GetCompanies([FromQuery]CompanyQueryParameters queryParameters)
+        [Route("GetCompaniesV2")]
+        public async Task<IActionResult> GetCompanies([FromQuery] CompanyQueryParameters queryParameters)
         {
             try
             {
@@ -88,20 +92,20 @@ namespace Organization.Presentation.Api.Controllers
                 }); //Alter stored procedure to return id of company added
                 _unitOfwork.CommitAndCloseConnection();
 
-                return CreatedAtAction("GetCompanyByid", new { id = id }, companyRequest);
+                return CreatedAtAction("GetCompanyByid", new { id }, companyRequest);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
-            
+
         }
         [HttpPut]
         [Route("UpdateCompany")]
         public async Task<IActionResult> UpdateCompany(string id, CompanyRequest companyRequest)
         {
             try
-            {            
+            {
                 var requiredCompany = await _unitOfwork.Companies.GetByIdAsync(id);
                 if (requiredCompany == null)
                 {
@@ -125,7 +129,7 @@ namespace Organization.Presentation.Api.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-            
+
         }
         [HttpDelete]
         [Route("DeleteComany")]
@@ -158,7 +162,22 @@ namespace Organization.Presentation.Api.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
-            
+
+        }
+        [HttpGet]
+        [Route("GetTotalCount")]
+        public async Task<IActionResult> GetTotalCount()
+        {
+            try
+            {
+                var company = new Company();
+                int count = await _unitOfwork.Companies.GetTotalCountAsyc(company);
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

@@ -7,11 +7,13 @@ using Organization.Domain.Employee;
 using Organization.Domain.Employee.Models;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Organization.Presentation.Api.Controllers
+namespace Organization.Presentation.Api.Controllers.V2
 {
     [ApiController]
     [DisableApi]
-    [Route("[controller]")]
+    [Route("v{v:apiVersion}/[controller]")]
+    [ApiVersion("2.0")]
+    //[Route("[controller]")]
     public class EmployeesController : Controller
     {
         private IUnitOfWork _unitOfWork;
@@ -30,14 +32,14 @@ namespace Organization.Presentation.Api.Controllers
                 var result = await _unitOfWork.Employees.GetAsyncV1();
                 return Ok(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
         }
 
         [HttpGet]
-        [Route("GetEmployees/V2")]
+        [Route("GetEmployeesV2")]
         public async Task<IActionResult> GetEmployeesV2([FromQuery] EmployeeQueryParameters queryParameters)
         {
             try
@@ -63,7 +65,7 @@ namespace Organization.Presentation.Api.Controllers
                 else
                     return Ok(employee);
             }
-           catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
@@ -92,14 +94,14 @@ namespace Organization.Presentation.Api.Controllers
                 _unitOfWork.CommitAndCloseConnection();
 
                 if (id == guid)
-                    return CreatedAtAction("GetEmployeeByID", new { id = id }, employee);
+                    return CreatedAtAction("GetEmployeeByID", new { id }, employee);
                 else
                     return BadRequest("Something went wrong");
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
-            }                    
+            }
         }
 
         [HttpPut]
@@ -131,7 +133,7 @@ namespace Organization.Presentation.Api.Controllers
                     return result ? Ok("Record Updated successfully") : BadRequest("Something went wrong");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
@@ -157,9 +159,24 @@ namespace Organization.Presentation.Api.Controllers
                 else
                     return BadRequest("Bad Request");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return StatusCode(500, ex.Message); 
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("GetTotalCount")]
+        public async Task<IActionResult> GetTotalCount()
+        {
+            try
+            {
+                var employee = new Employee();
+                int count = await _unitOfWork.Employees.GetTotalCountAsyc(employee);
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
     }
