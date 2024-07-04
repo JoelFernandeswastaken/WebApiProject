@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc.Versioning;
+﻿using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Common.Utilities;
 using Organization.Infrastructure.Persistance;
+using Organization.Presentation.Api.Common;
 using Organization.Presentation.Api.Swagger;
+using Organization.Presentation.Api.Swagger.Examples.Response;
+using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 
 namespace Organization.Presentation.Api.Configuration
 {
@@ -16,8 +21,11 @@ namespace Organization.Presentation.Api.Configuration
             services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen(c => {
-                c.DocumentFilter<DisableApiAttribute>();
+            services.AddSwaggerGen(options => {
+                options.DocumentFilter<DisableApiAttribute>();
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlPath));
                 //c.SwaggerDoc("v1", new OpenApiInfo
                 //{
                 //    Version = "v1",
@@ -45,6 +53,8 @@ namespace Organization.Presentation.Api.Configuration
                 // options.ApiVersionReader = new HeaderApiVersionReader("X-API-Version"); // for header versioning (version passed in header)
             });
 
+            // services.AddSwaggerExamplesFromAssemblyOf<GetCompaniesV2ResponseExample>();
+
             // configure swagger to work with versioning
             services.AddVersionedApiExplorer(options =>
             {
@@ -53,6 +63,7 @@ namespace Organization.Presentation.Api.Configuration
             });
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
             return services;
         }
 

@@ -14,6 +14,7 @@ namespace Organization.Domain.Company.Models
     {
         [ColumnName("Id")]
         public string? Id { get; set; } = ShortGuid.NewGuid();
+        [DistinguishingUniqueKey]
         [ColumnName("Name")]
         public string? Name { get; set; }
         [ColumnName("Country")]
@@ -26,4 +27,5 @@ namespace Organization.Domain.Company.Models
         [Navigation(typeof(Employee.Models.Employee), "CompanyId")]
         public IEnumerable<Employee.Models.Employee> Employees { get; set; } = new List<Employee.Models.Employee>();
     }
+
 }

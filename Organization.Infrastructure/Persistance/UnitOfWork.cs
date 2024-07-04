@@ -42,7 +42,7 @@ namespace Organization.Infrastructure.Persistance
             _dapperDataContext.Transaction?.Dispose();
             _dapperDataContext.Transaction = null;
             _dapperDataContext.Connection?.Close();
-            _dapperDataContext.Connection.Dispose();
+            _dapperDataContext.Connection?.Dispose();
         }
         public void RollBack()
         {

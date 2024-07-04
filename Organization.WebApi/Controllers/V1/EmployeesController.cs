@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations;
-using Organization.Application.Common.DTO;
+using Organization.Application.Common.DTO.Request;
+using Organization.Application.Common.Exceptions;
 using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Common.Utilities;
 using Organization.Domain.Employee;
@@ -22,7 +23,10 @@ namespace Organization.Presentation.Api.Controllers.V1
         {
             _unitOfWork = unitOfWork;
         }
-
+        /// <summary>
+        /// Get all employees without pagination.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetEmployees")]
         public async Task<IActionResult> GetEmployeesV1()
@@ -37,7 +41,11 @@ namespace Organization.Presentation.Api.Controllers.V1
                 return StatusCode(500, ex.Message);
             }
         }
-
+        /// <summary>
+        /// Get all employees based on query parameters with pagination.
+        /// </summary>
+        /// <param name="queryParameters"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetEmployeesV2")]
         public async Task<IActionResult> GetEmployeesV2([FromQuery] EmployeeQueryParameters queryParameters)
@@ -52,7 +60,11 @@ namespace Organization.Presentation.Api.Controllers.V1
                 return StatusCode(500, ex.Message);
             }
         }
-
+        /// <summary>
+        /// Get employee details based on ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("Employee/{id}")]
         public async Task<IActionResult> GetEmployeeByID(string id)
@@ -61,7 +73,7 @@ namespace Organization.Presentation.Api.Controllers.V1
             {
                 var employee = await _unitOfWork.Employees.GetByIdAsync(id);
                 if (employee == null)
-                    return NotFound();
+                    throw new EmployeeNotFoundException("Could not find employee with given ID");
                 else
                     return Ok(employee);
             }
@@ -70,7 +82,11 @@ namespace Organization.Presentation.Api.Controllers.V1
                 return StatusCode(500, ex.Message);
             }
         }
-
+        /// <summary>
+        /// Add a new employee
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("AddEmployee")]
         public async Task<IActionResult> AddEmployee(EmployeeRequest employee)
@@ -103,7 +119,12 @@ namespace Organization.Presentation.Api.Controllers.V1
                 return StatusCode(500, ex.Message);
             }
         }
-
+        /// <summary>
+        /// Update employee information based on ID.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="employeeRequest"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("UpdateEmployee")]
         public async Task<IActionResult> UpdateEmployee(string id, EmployeeRequest employeeRequest)
@@ -138,6 +159,11 @@ namespace Organization.Presentation.Api.Controllers.V1
                 return StatusCode(500, ex.Message);
             }
         }
+        /// <summary>
+        /// Delete an employee based on ID.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("DelelteEmployee")]
         public async Task<IActionResult> DeleteEmployee(string id)

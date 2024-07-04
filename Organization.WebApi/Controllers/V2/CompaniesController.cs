@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations;
-using Organization.Application.Common.DTO;
+using Organization.Application.Common.DTO.Request;
+using Organization.Application.Common.Exceptions;
 using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Common.Utilities;
 using Organization.Domain.Company;
@@ -13,7 +14,7 @@ namespace Organization.Presentation.Api.Controllers.V2
 {
     [ApiController]
     [DisableApi]
-    // [Route("[controller]")]
+    // [Route("v2/[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
     public class CompaniesController : Controller
@@ -77,26 +78,23 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("AddCompany")]
         public async Task<IActionResult> AddCompany(CompanyRequest companyRequest)
         {
-            try
-            {
-                string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
+            bool isCompanyNameExists = await _unitOfwork.Companies.IsExistingAsync(companyRequest.Name);
+            if (isCompanyNameExists)
+                throw new DuplicateException($"Company with name {companyRequest.Name} alredy exists.");
 
-                _unitOfwork.BeginTransaction();
-                var id = _unitOfwork.Companies.AddAsync(new Company()
-                {
-                    Id = guid,
-                    Name = companyRequest.Name,
-                    Address = companyRequest.Address,
-                    Country = companyRequest.Country
-                }); //Alter stored procedure to return id of company added
-                _unitOfwork.CommitAndCloseConnection();
+            string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
 
-                return CreatedAtAction("GetCompanyByid", new { id }, companyRequest);
-            }
-            catch (Exception ex)
+            _unitOfwork.BeginTransaction();
+            var id = await _unitOfwork.Companies.AddAsync(new Company()
             {
-                return StatusCode(500, ex.Message);
-            }
+                Id = guid,
+                Name = companyRequest.Name,
+                Address = companyRequest.Address,
+                Country = companyRequest.Country
+            }); //Alter stored procedure to return id of company added
+            _unitOfwork.CommitAndCloseConnection();
+
+            return CreatedAtAction("GetCompanyByid", new { id }, companyRequest);
 
         }
         [HttpPut]

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations;
-using Organization.Application.Common.DTO;
+using Organization.Application.Common.DTO.Request;
 using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Common.Utilities;
 using Organization.Domain.Employee;
@@ -11,7 +11,7 @@ namespace Organization.Presentation.Api.Controllers.V2
 {
     [ApiController]
     [DisableApi]
-    // [Route("[controller]")]
+    // [Route("v2/[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
 
@@ -24,6 +24,10 @@ namespace Organization.Presentation.Api.Controllers.V2
             _unitOfWork = unitOfWork;
         }
 
+        /// <summary>
+        /// Get all employees. Implemented without pagination
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetEmployees")]
         public async Task<IActionResult> GetEmployeesV1()
