@@ -189,31 +189,6 @@ namespace Organization.Infrastructure.Persistance.Repositories
             }
             catch(Exception ex)
             {
-                return false;
-            }
-            
-        }
-
-        public bool Update(T entity)
-        {
-            try
-            {
-                int rowsAffected = 0;
-                string tableName = typeof(T).GetDbTableName();
-                string columnValuesForUpdate = typeof(T).GetColumnValuesForUpdate(entity);
-                System.Diagnostics.Debug.Write($"colunvaluesforupdate:{columnValuesForUpdate}");
-                string id = entity.Id;
-
-                var parameters = new DynamicParameters();
-                parameters.Add("tableName", tableName, System.Data.DbType.String, System.Data.ParameterDirection.Input, size: 50);
-                parameters.Add("columnToUpdate", columnValuesForUpdate, System.Data.DbType.String, System.Data.ParameterDirection.Input);
-                parameters.Add("id", id, System.Data.DbType.String, System.Data.ParameterDirection.Input);
-
-                rowsAffected = _dapperDataContext.Connection.Execute("spUpdateRecord", parameters, transaction: _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
-
-                if (rowsAffected > 0)
-                    return true;
-                else
                     return false;
             }
             catch (Exception ex)
