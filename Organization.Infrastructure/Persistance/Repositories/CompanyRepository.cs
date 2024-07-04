@@ -1,4 +1,4 @@
-﻿using Organization.Application.Common.DTO;
+﻿using Organization.Application.Common.DTO.Response;
 using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Application.Common.Utilities;
 using Organization.Domain.Company;
