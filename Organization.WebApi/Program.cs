@@ -25,7 +25,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         foreach (var description in provider.ApiVersionDescriptions)
+        {
             c.SwaggerEndpoint($"{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+            // c.RoutePrefix = "api/documentation";
+            c.DisplayRequestDuration(); // show response times
+            c.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List); // default is list
+            c.DefaultModelExpandDepth(1);
+        }
     });
 }
 
