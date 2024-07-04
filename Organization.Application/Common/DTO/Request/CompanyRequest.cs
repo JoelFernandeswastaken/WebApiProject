@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Organization.Application.Common.DTO
+namespace Organization.Application.Common.DTO.Request
 {
     public class CompanyRequest
     {
