@@ -6,6 +6,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 namespace Organization.Presentation.Api.Swagger
 {    public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
+        // https://github.com/dotnet/aspnet-api-versioning/blob/ms/samples/aspnetcore/SwaggerSample/ConfigureSwaggerOptions.cs
         readonly IApiVersionDescriptionProvider provider;
 
         /// <summary>
