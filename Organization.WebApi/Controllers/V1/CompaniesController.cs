@@ -114,7 +114,7 @@ namespace Organization.Presentation.Api.Controllers.V1
             requiredCompany.Country = companyRequest.Country;
 
             _unitOfwork.BeginTransaction();
-            bool result = _unitOfwork.Companies.Update(requiredCompany);
+            bool result = await _unitOfwork.Companies.UpdateAsync(requiredCompany);
             _unitOfwork.CommitAndCloseConnection();
 
             return result ? Ok("Record Updated successfully") : throw new Exception("Something went wrong");
