@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Organization.Presentation.Api.Common
+namespace Organization.Presentation.Api.Common.Exceptions
 {
     public class CustomProblemDetailsFactory : ProblemDetailsFactory
     {
@@ -14,12 +14,12 @@ namespace Organization.Presentation.Api.Common
             {
                 Status = statusCode, //You could delete these original property and only leave the Extensions property.
                 Title = title,
-                Type = type,
+                Type = RFC7231Mapper.GetRFC7231Link(statusCode),
                 Detail = detail,
                 Instance = instance,
                 Extensions =
                     {
-                        { "CustomProperty", "Customr property value" }
+                        {"TraceID", httpContext.TraceIdentifier}
                     }
             };
             return problemDetails;
