@@ -191,10 +191,6 @@ namespace Organization.Infrastructure.Persistance.Repositories
             {
                     return false;
             }
-            catch (Exception ex)
-            {
-                throw;
-            }
 
         }
 

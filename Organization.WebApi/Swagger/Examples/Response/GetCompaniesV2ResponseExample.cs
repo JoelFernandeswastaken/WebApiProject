@@ -11,18 +11,8 @@ namespace Organization.Presentation.Api.Swagger.Examples.Response
         {
             var companiesList = new List<CompanyResponse>()
             {
-                new CompanyResponse()
-                {
-                    Name = "name1",
-                    Address = "address1",
-                    Country = "country1"
-                },
-                new CompanyResponse()
-                {
-                    Name = "name2",
-                    Address = "address2",
-                    Country = "country2"
-                }
+                new CompanyResponse("id1", "name1", "address1", "country1"),
+                new CompanyResponse("id2", "name2", "address2", "country2")
             };
             return PageList<CompanyResponse>.Create(companiesList, 1, 100, 100);
         }

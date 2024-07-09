@@ -20,13 +20,7 @@ namespace Organization.Infrastructure.Persistance.Repositories
         }
         public async Task<PageList<CompanyResponse>> GetCompaniesByQueryAsync(CompanyQueryParameters queryParameters)
         {
-            var companies = (await GetAsyncV2(queryParameters)).AsQueryable().Select(s => new CompanyResponse
-            {
-                Id = s.Id,
-                Name = s.Name,  
-                Country = s.Country,
-                Address = s.Address
-            });
+            var companies = (await GetAsyncV2(queryParameters)).AsQueryable().Select(s => new CompanyResponse(s.Id, s.Name, s.Country, s.Address));
 
             if (!string.IsNullOrEmpty(queryParameters.CompanyName))
                 companies = companies.Where(s => s.Name.ToLowerInvariant().Contains(queryParameters.CompanyName.ToLowerInvariant()));

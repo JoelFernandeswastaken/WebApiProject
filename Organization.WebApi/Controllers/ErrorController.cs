@@ -16,7 +16,7 @@ namespace Organization.Presentation.Api.Controllers
                 IApplicationException appException => (Convert.ToInt32(appException.StatusCode), appException.ErrorMessage),
                 _ => (StatusCodes.Status500InternalServerError, exception.Message) // handles default condition
             };
-            return Problem(statusCode: statusCode, title: message);
+            return Problem(statusCode: statusCode, title: message );
 
             //var exception = HttpContext.Features.Get<IExceptionHandlerFeature>().Error;
             //return Problem(statusCode: 500, title: exception.Message);

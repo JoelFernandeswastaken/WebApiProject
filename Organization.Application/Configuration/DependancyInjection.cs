@@ -11,6 +11,10 @@ namespace Organization.Application.Configuration
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
+            services.AddMediatR(config =>
+            {
+                config.RegisterServicesFromAssemblies(typeof(DependancyInjection).Assembly);
+            });
             return services;
         }
     }

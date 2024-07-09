@@ -5,7 +5,7 @@ using Microsoft.OpenApi.Models;
 using Organization.Application.Common.Interfaces.Persistance;
 using Organization.Domain.Common.Utilities;
 using Organization.Infrastructure.Persistance;
-using Organization.Presentation.Api.Common;
+using Organization.Presentation.Api.Common.Exceptions;
 using Organization.Presentation.Api.Swagger;
 using Organization.Presentation.Api.Swagger.Examples.Response;
 using Swashbuckle.AspNetCore.Filters;
