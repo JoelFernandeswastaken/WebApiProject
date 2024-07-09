@@ -9,6 +9,6 @@ namespace Organization.Domain.Employee
 {
     public sealed class EmployeeQueryParameters : QueryParameters
     {
-        public string EmployeeName { get; set; }    
+        public string? EmployeeName { get; set; }    
     }
 }

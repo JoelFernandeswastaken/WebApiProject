@@ -9,6 +9,6 @@ namespace Organization.Domain.Company
 {
     public sealed class CompanyQueryParameters : QueryParameters
     {
-        public string CompanyName { get; set; }
+        public string? CompanyName { get; set; }
     }
 }

@@ -15,9 +15,4 @@
     <ProjectReference Include="..\Organization.Domain\Organization.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="EmployeeModule\" />
-    <Folder Include="NewFolder\" />
-  </ItemGroup>
-
 </Project>

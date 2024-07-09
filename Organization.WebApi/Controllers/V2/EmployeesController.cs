@@ -1,7 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO.Request;
+using Organization.Application.Common.Exceptions;
 using Organization.Application.Common.Interfaces.Persistance;
+using Organization.Application.CompanyModule.Commands.UpdateCompany;
+using Organization.Application.CompanyModule.Queries.GetTotalCount;
+using Organization.Application.EmployeeModule.Commands.AddEmployee;
+using Organization.Application.EmployeeModule.Commands.DeleteEmployee;
+using Organization.Application.EmployeeModule.Commands.UpdateEmployee;
+using Organization.Application.EmployeeModule.Queries.GetEmployeeByID;
+using Organization.Application.EmployeeModule.Queries.GetEmployees;
+using Organization.Application.EmployeeModule.Queries.GetTotalCountEmployee;
 using Organization.Domain.Common.Utilities;
 using Organization.Domain.Employee;
 using Organization.Domain.Employee.Models;
@@ -18,10 +28,12 @@ namespace Organization.Presentation.Api.Controllers.V2
     public class EmployeesController : Controller
     {
         private IUnitOfWork _unitOfWork;
+        private ISender _sender;
         public string sqlServerDateFormat = "yyyy-dd-MM HH:mm:ss";
-        public EmployeesController(IUnitOfWork unitOfWork)
+        public EmployeesController(IUnitOfWork unitOfWork, ISender sender)
         {
             _unitOfWork = unitOfWork;
+            _sender = sender;
         }
 
         /// <summary>
@@ -40,7 +52,8 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("GetEmployeesV2")]
         public async Task<IActionResult> GetEmployeesV2([FromQuery] EmployeeQueryParameters queryParameters)
         {
-            var result = await _unitOfWork.Employees.GetEmployeesByQueryAsyc(queryParameters);
+            var getEmployeesQuery = new GetEmployeesQuery(queryParameters);
+            var result = await _sender.Send(getEmployeesQuery);
             return Ok(result);
         }
 
@@ -48,91 +61,53 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("Employee/{id}")]
         public async Task<IActionResult> GetEmployeeByID(string id)
         {
-            var employee = await _unitOfWork.Employees.GetByIdAsync(id);
-            if (employee == null)
-                return NotFound();
+            var getEmployeeByIDQuery = new GetEmployeeByIDQuery(id);
+            var result = await _sender.Send(getEmployeeByIDQuery);
+            if (result == null)
+                throw new EmployeeNotFoundException($"Could not find employee with given ID: {id}"); 
             else
-                return Ok(employee);
+                return Ok(result);
         }
 
         [HttpPost]
         [Route("AddEmployee")]
         public async Task<IActionResult> AddEmployee(EmployeeRequest employee)
         {
-            string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
+            var addEmployeeCommand = new AddEmployeeCommand(employee);
+            var id = _sender.Send(addEmployeeCommand);
+            return CreatedAtAction("GetEmployeeByID", new { id }, employee);
 
-            _unitOfWork.BeginTransaction();
-            var id = await _unitOfWork.Employees.AddAsync(new Employee()
-            {
-                Id = guid,
-                Name = employee.name,
-                Position = employee.position,
-                CompanyId = employee.companyID,
-                CreatedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),
-                ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),
-                Salary = employee.salary,
-                Age = employee.age
-            });
-            _unitOfWork.CommitAndCloseConnection();
-
-            if (id == guid)
-                return CreatedAtAction("GetEmployeeByID", new { id }, employee);
-            else
-                return BadRequest("Something went wrong");
         }
 
         [HttpPut]
         [Route("UpdateEmployee")]
         public async Task<IActionResult> UpdateEmployee(string id, EmployeeRequest employeeRequest)
         {
-            var requiredEmployee = await _unitOfWork.Employees.GetByIdAsync(id);
+            var updateEmployeeCommand = new UpdateEmployeeCommand(id, employeeRequest);
+            var result =  await _sender.Send(updateEmployeeCommand);   
+            return result ? Ok("Record Updated successfully") : throw new Exception("Something went wrong");
 
-            if (requiredEmployee == null)
-                return NotFound(employeeRequest);
-            else
-            {
-                if (requiredEmployee.Id != id)
-                    return BadRequest(requiredEmployee.Id);
-
-                requiredEmployee.Name = employeeRequest.name;
-                requiredEmployee.Age = employeeRequest.age;
-                requiredEmployee.CompanyId = employeeRequest.companyID;
-                requiredEmployee.Salary = employeeRequest.salary;
-                requiredEmployee.Position = employeeRequest.position;
-                requiredEmployee.ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
-
-                _unitOfWork.BeginTransaction();
-                var result = await _unitOfWork.Employees.UpdateAsync(requiredEmployee);
-                _unitOfWork.CommitAndCloseConnection();
-
-                return result ? Ok("Record Updated successfully") : BadRequest("Something went wrong");
-            }
         }
         [HttpDelete]
-        [Route("DelelteEmployee")]
+        [Route("DeleteEmployee")]
         public async Task<IActionResult> DeleteEmployee(string id)
         {
-            var employeeToDelete = _unitOfWork.Employees.GetByIdAsync(id);
-            if (employeeToDelete == null)
-                return NotFound(employeeToDelete);
-
-            _unitOfWork.BeginTransaction();
-            int rowsAffected = await _unitOfWork.Employees.SoftDeleteAsync(id);
-            _unitOfWork.CommitAndCloseConnection();
+            var deleteEmployeeCommand = new DeleteEmployeeCommand(id);
+            var rowsAffected = await _sender.Send(deleteEmployeeCommand);
 
             if (rowsAffected == 0)
                 return Ok("No rows Affected");
             else if (rowsAffected > 0)
                 return Ok($"{rowsAffected} rows Affected");
             else
-                return BadRequest("Bad Request");
+                throw new Exception("Employee Delete operation failed");
         }
         [HttpGet]
         [Route("GetTotalCount")]
         public async Task<IActionResult> GetTotalCount()
         {
-            var employee = new Employee();
-            int count = await _unitOfWork.Employees.GetTotalCountAsyc(employee);
+            var getTotalCountEmployeeQuery = new GetTotalCountEmployeeQuery();
+            var count = await _sender.Send(getTotalCountEmployeeQuery);
             return Ok(count);
         }
     }
