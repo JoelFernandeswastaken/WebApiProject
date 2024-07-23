@@ -33,6 +33,10 @@ namespace Organization.Presentation.Api.Controllers.V2
             _unitOfwork = unitOfWork;
             _sender = sender;
         }
+        /// <summary>
+        /// Get all companies(pagination not implemented)
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetCompanies")]
         public async Task<IActionResult> GetCompanies()
@@ -41,6 +45,11 @@ namespace Organization.Presentation.Api.Controllers.V2
             var companies = await _unitOfwork.Companies.GetAsyncV1();
             return Ok(companies);
         }
+        /// <summary>
+        /// Get all companies
+        /// </summary>
+        /// <param name="queryParameters"></param>
+        /// <resposne code="200">Returns paged list all companies based on query parameters</resposne>
         [HttpGet]
         [Route("GetCompaniesV2")]
         public async Task<IActionResult> GetCompanies([FromQuery] CompanyQueryParameters queryParameters)
@@ -49,6 +58,13 @@ namespace Organization.Presentation.Api.Controllers.V2
             var result = await _sender.Send(getCompaniesQuery);
             return Ok(result);
         }
+
+        /// <summary>
+        /// Return company details based on ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns code="200">Returns company details</returns>
+        /// <exception cref="CompanyNotFoundException"></exception>
         [HttpGet("company/{id}")]
         public async Task<IActionResult> GetCompanyByid(string id)
         {
@@ -60,6 +76,12 @@ namespace Organization.Presentation.Api.Controllers.V2
             }
             else { return Ok(result); }
         }
+
+        /// <summary>
+        /// Add a new company
+        /// </summary>
+        /// <param name="companyRequest"></param>
+        /// <returns code="200">Company added successfully</returns>
         [HttpPost]
         [Route("AddCompany")]
         public async Task<IActionResult> AddCompany(CompanyRequest companyRequest)
@@ -69,6 +91,14 @@ namespace Organization.Presentation.Api.Controllers.V2
             return CreatedAtAction("GetCompanyByid", new { id }, companyRequest);
 
         }
+
+        /// <summary>
+        /// Update a company based on ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="companyRequest"></param>
+        /// <returns code="200">Company updated successfully</returns>
+        /// <returns code="400">Bad request</returns>
         [HttpPut]
         [Route("UpdateCompany")]
         public async Task<IActionResult> UpdateCompany(string id, CompanyRequest companyRequest)
@@ -96,6 +126,13 @@ namespace Organization.Presentation.Api.Controllers.V2
 
             return result ? Ok("Record Updated successfully") : BadRequest("Something went wrong");
         }
+
+        /// <summary>
+        /// Delete company based on ID
+        /// </summary>
+        /// <param name="id">ID of company to be updated</param>
+        /// <param name="deleteAssociations">Delete associated employees</param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("DeleteComany")]
         public async Task<IActionResult> DeleteCompany(string id, bool deleteAssociations)
@@ -111,6 +148,11 @@ namespace Organization.Presentation.Api.Controllers.V2
                 return BadRequest("Bad Request");
 
         }
+
+        /// <summary>
+        /// Get total count of Companies
+        /// </summary>
+        /// <returns code="200">Total count of companies</returns>
         [HttpGet]
         [Route("GetTotalCount")]
         public async Task<IActionResult> GetTotalCount()
