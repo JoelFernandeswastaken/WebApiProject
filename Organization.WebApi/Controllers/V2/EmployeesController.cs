@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using MapsterMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO.Request;
@@ -27,13 +28,15 @@ namespace Organization.Presentation.Api.Controllers.V2
 
     public class EmployeesController : Controller
     {
-        private IUnitOfWork _unitOfWork;
-        private ISender _sender;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISender _sender;
+        private readonly IMapper _mapper;
         public string sqlServerDateFormat = "yyyy-dd-MM HH:mm:ss";
-        public EmployeesController(IUnitOfWork unitOfWork, ISender sender)
+        public EmployeesController(IUnitOfWork unitOfWork, ISender sender, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _sender = sender;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -73,8 +76,9 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("AddEmployee")]
         public async Task<IActionResult> AddEmployee(EmployeeRequest employee)
         {
-            var addEmployeeCommand = new AddEmployeeCommand(employee);
-            var id = _sender.Send(addEmployeeCommand);
+            // var addEmployeeCommand = new AddEmployeeCommand(employee.age, employee.name, employee.position, employee.companyID, employee.salary);
+            var addEmployeeCommand = _mapper.Map<AddEmployeeCommand>(employee);
+            var id = await _sender.Send(addEmployeeCommand);
             return CreatedAtAction("GetEmployeeByID", new { id }, employee);
 
         }

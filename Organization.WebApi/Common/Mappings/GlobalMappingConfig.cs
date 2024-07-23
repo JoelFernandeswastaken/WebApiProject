@@ -1,0 +1,32 @@
+﻿using Mapster;
+using Organization.Application.Common.DTO.Request;
+using Organization.Application.CompanyModule.Commands.DeleteCompany;
+using Organization.Application.CompanyModule.Commands.UpdateCompany;
+using Organization.Application.EmployeeModule.Commands.UpdateEmployee;
+using Organization.Application.EmployeeModule.Queries.GetEmployees;
+using Organization.Domain.Employee;
+
+namespace Organization.Presentation.Api.Common.Mappings
+{
+    public class GlobalMappingConfig : IRegister
+    {
+        public void Register(TypeAdapterConfig typeAdapterConfig) 
+        {
+            typeAdapterConfig.NewConfig<(string id, CompanyRequest request), UpdateCompanyCommand>()
+                .Map(dest => dest.Id, src => src.id)
+                .Map(dest => dest, src => src.request);
+
+            typeAdapterConfig.NewConfig<(string id, bool deleteAssociation), DeleteCompanyCommand>()
+                .Map(dest => dest.id, src => src.id)
+                .Map(dest => dest.deleteAssociations, src => src.deleteAssociation);
+
+            typeAdapterConfig.NewConfig<(string id, EmployeeRequest request), UpdateEmployeeCommand>()
+                .Map(dest => dest.id, src => src.id)
+                .Map(dest => dest, src => src.request);
+
+            typeAdapterConfig.NewConfig<(string id, bool deleteAssociation), DeleteCompanyCommand>()
+                .Map(dest => dest.id, src => src.id)
+                .Map(dest => dest.deleteAssociations, src => src.deleteAssociation);
+        }
+    }
+}

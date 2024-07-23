@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Organization.Application.EmployeeModule.Commands.AddEmployee
 {
-    public sealed record class AddEmployeeCommand(EmployeeRequest employeeRequest) : IRequest<string>
+    public sealed record class AddEmployeeCommand(int Age, string Name, string Position, string CompanyID, int Salary) : IRequest<string>
     {
     }
 }

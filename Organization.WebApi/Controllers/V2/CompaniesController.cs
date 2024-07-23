@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using MapsterMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO.Request;
@@ -28,10 +29,12 @@ namespace Organization.Presentation.Api.Controllers.V2
     {
         private readonly IUnitOfWork _unitOfwork;
         private readonly ISender _sender; // iSender to send request to handlers
-        public CompaniesController(IUnitOfWork unitOfWork, ISender sender)
+        private readonly IMapper _mapper;
+        public CompaniesController(IUnitOfWork unitOfWork, ISender sender, IMapper mapper)
         {
             _unitOfwork = unitOfWork;
             _sender = sender;
+            _mapper = mapper;
         }
         /// <summary>
         /// Get all companies(pagination not implemented)
@@ -86,7 +89,8 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("AddCompany")]
         public async Task<IActionResult> AddCompany(CompanyRequest companyRequest)
         {
-            var addCompanyCommand = new AddCompanyCommand(companyRequest.Name, companyRequest.Address, companyRequest.Country);
+            // var addCompanyCommand = new AddCompanyCommand(companyRequest.Name, companyRequest.Address, companyRequest.Country);
+            var addCompanyCommand = _mapper.Map<AddCompanyCommand>(companyRequest);
             var id = _sender.Send(addCompanyCommand);
             return CreatedAtAction("GetCompanyByid", new { id }, companyRequest);
 
@@ -103,27 +107,9 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("UpdateCompany")]
         public async Task<IActionResult> UpdateCompany(string id, CompanyRequest companyRequest)
         {
-            var updateCompanyCommmand = new UpdateCompanyCommand(id, companyRequest.Name, companyRequest.Address, companyRequest.Country);
-            var result = await _sender.Send(updateCompanyCommmand);
-
-            //var requiredCompany = await _unitOfwork.Companies.GetByIdAsync(id);
-            //if (requiredCompany == null)
-            //{
-            //    return NotFound(requiredCompany);
-            //}
-            //if (requiredCompany.Id != id)
-            //{
-            //    return BadRequest(requiredCompany);
-            //}
-            //requiredCompany.Name = companyRequest.Name;
-            //requiredCompany.Address = companyRequest.Address;
-            //requiredCompany.Country = companyRequest.Country;
-
-
-            //_unitOfwork.BeginTransaction();
-            //bool result = await _unitOfwork.Companies.UpdateAsync(requiredCompany);
-            //_unitOfwork.CommitAndCloseConnection();
-
+            // var updateCompanyCommmand = new UpdateCompanyCommand(id, companyRequest.Name, companyRequest.Address, companyRequest.Country);
+            var updateCompanyCommand = _mapper.Map<UpdateCompanyCommand>((id, companyRequest));
+            var result = await _sender.Send(updateCompanyCommand);
             return result ? Ok("Record Updated successfully") : BadRequest("Something went wrong");
         }
 
@@ -137,7 +123,8 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("DeleteComany")]
         public async Task<IActionResult> DeleteCompany(string id, bool deleteAssociations)
         {
-            var deleteCompanyCommand = new DeleteCompanyCommand(id, deleteAssociations);
+            // var deleteCompanyCommand = new DeleteCompanyCommand(id, deleteAssociations);
+            var deleteCompanyCommand = _mapper.Map<DeleteCompanyCommand>((id, deleteAssociations));
             var rowsAffected = await _sender.Send(deleteCompanyCommand);    
 
             if (rowsAffected == 0)

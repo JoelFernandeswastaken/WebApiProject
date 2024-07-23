@@ -11,6 +11,7 @@ using Organization.Presentation.Api.Swagger.Examples.Response;
 using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
+using Organization.Presentation.Api.Common.Mappings;
 
 namespace Organization.Presentation.Api.Configuration
 {
@@ -62,6 +63,7 @@ namespace Organization.Presentation.Api.Configuration
                 options.SubstituteApiVersionInUrl = true;
             });
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+            services.AddMappings();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddSingleton<ProblemDetailsFactory, CustomProblemDetailsFactory>();
             return services;

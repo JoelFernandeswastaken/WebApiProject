@@ -8,10 +8,10 @@ namespace Organization.Application.Common.DTO.Request
 {
     public class EmployeeRequest
     {
-        public int age { get; set; }
-        public string name { get; set; }
-        public string position { get; set; }
-        public string companyID { get; set; }
-        public int salary { get; set; }
+        public int Age { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Position { get; set; } = string.Empty;
+        public string CompanyID { get; set; } = string.Empty;
+        public int Salary { get; set; }
     }
 }

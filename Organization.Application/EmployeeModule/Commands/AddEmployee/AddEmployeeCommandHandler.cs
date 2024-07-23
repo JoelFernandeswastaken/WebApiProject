@@ -24,13 +24,13 @@ namespace Organization.Application.EmployeeModule.Commands.AddEmployee
             var id = await _unitOfWork.Employees.AddAsync(new Employee()
             {
                 Id = guid,
-                Name = request.employeeRequest.name,
-                Position = request.employeeRequest.position,
-                CompanyId = request.employeeRequest.companyID,
+                Name = request.Name,
+                Position = request.Position,
+                CompanyId = request.CompanyID,
                 CreatedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),
                 ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),
-                Salary = request.employeeRequest.salary,
-                Age = request.employeeRequest.age
+                Salary = request.Salary,
+                Age = request.Age
             });
             _unitOfWork.CommitAndCloseConnection();
 

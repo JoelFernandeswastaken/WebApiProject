@@ -76,13 +76,13 @@ namespace Organization.Presentation.Api.Controllers.V1
             var id = await _unitOfWork.Employees.AddAsync(new Employee()
             {
                 Id = guid,
-                Name = employee.name,
-                Position = employee.position,
-                CompanyId = employee.companyID,
+                Name = employee.Name,
+                Position = employee.Position,
+                CompanyId = employee.CompanyID,
                 CreatedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),
                 ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss"),
-                Salary = employee.salary,
-                Age = employee.age
+                Salary = employee.Salary,
+                Age = employee.Age
             });
             _unitOfWork.CommitAndCloseConnection();
 
@@ -110,11 +110,11 @@ namespace Organization.Presentation.Api.Controllers.V1
                 if (requiredEmployee.Id != id)
                     throw new Exception();
 
-                requiredEmployee.Name = employeeRequest.name;
-                requiredEmployee.Age = employeeRequest.age;
-                requiredEmployee.CompanyId = employeeRequest.companyID;
-                requiredEmployee.Salary = employeeRequest.salary;
-                requiredEmployee.Position = employeeRequest.position;
+                requiredEmployee.Name = employeeRequest.Name;
+                requiredEmployee.Age = employeeRequest.Age;
+                requiredEmployee.CompanyId = employeeRequest.CompanyID;
+                requiredEmployee.Salary = employeeRequest.Salary;
+                requiredEmployee.Position = employeeRequest.Position;
                 requiredEmployee.ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
 
                 _unitOfWork.BeginTransaction();
