@@ -19,7 +19,16 @@ namespace Organization.Application.EmployeeModule.Queries.GetEmployeeByID
 
         public async Task<EmployeeResponse> Handle(GetEmployeeByIDQuery request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var result = await _unitOfWork.Employees.GetByIdAsync(request.id);
+            var employeeResponse = new EmployeeResponse()
+            {
+                Name = result.Name,
+                Age = result.Age,
+                Position = result.Position,
+                Salary = Convert.ToInt32(result.Salary),
+                CreatedOn = result.CreatedOn
+            };
+            return employeeResponse;
         }
     }
 }
