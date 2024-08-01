@@ -189,7 +189,7 @@ namespace Organization.Infrastructure.Persistance.Repositories
             }
             catch(Exception ex)
             {
-                    return false;
+                throw ex;
             }
 
         }
