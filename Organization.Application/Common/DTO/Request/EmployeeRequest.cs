@@ -9,9 +9,9 @@ namespace Organization.Application.Common.DTO.Request
     public class EmployeeRequest
     {
         public int Age { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Position { get; set; } = string.Empty;
-        public string CompanyID { get; set; } = string.Empty;
+        public string Name { get; set; }
+        public string Position { get; set; }
+        public string CompanyID { get; set; }
         public int Salary { get; set; }
     }
 }

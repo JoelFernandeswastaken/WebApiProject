@@ -87,7 +87,8 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("UpdateEmployee")]
         public async Task<IActionResult> UpdateEmployee(string id, EmployeeRequest employeeRequest)
         {
-            var updateEmployeeCommand = new UpdateEmployeeCommand(id, employeeRequest);
+            // var updateEmployeeCommand = new UpdateEmployeeCommand(id, employeeRequest.Age, employeeRequest.Name, employeeRequest.Position, employeeRequest.CompanyID, employeeRequest.Salary);
+            var updateEmployeeCommand = _mapper.Map<UpdateEmployeeCommand>((id, employeeRequest));
             var result =  await _sender.Send(updateEmployeeCommand);   
             return result ? Ok("Record Updated successfully") : throw new Exception("Something went wrong");
 
