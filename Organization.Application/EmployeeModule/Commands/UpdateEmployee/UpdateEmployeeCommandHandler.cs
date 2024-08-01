@@ -26,11 +26,11 @@ namespace Organization.Application.EmployeeModule.Commands.UpdateEmployee
                 throw new EmployeeNotFoundException($"Could not find employee with given ID: {request.id}");
             else
             {
-                requiredEmployee.Name = request.employeeRequest.Name;
-                requiredEmployee.Age = request.employeeRequest.Age;
-                requiredEmployee.CompanyId = request.employeeRequest.CompanyID;
-                requiredEmployee.Salary = request.employeeRequest.Salary;
-                requiredEmployee.Position = request.employeeRequest.Position;
+                requiredEmployee.Name = request.Name;
+                requiredEmployee.Age = request.Age;
+                requiredEmployee.CompanyId = request.CompanyID;
+                requiredEmployee.Salary = request.Salary;
+                requiredEmployee.Position = request.Position;
                 requiredEmployee.ModifiedOn = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
 
                 _unitOfWork.BeginTransaction();

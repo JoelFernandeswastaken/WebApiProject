@@ -10,5 +10,5 @@ using System.Threading.Tasks;
 
 namespace Organization.Application.EmployeeModule.Commands.UpdateEmployee
 {
-    public sealed record class UpdateEmployeeCommand(string id, EmployeeRequest employeeRequest) : IRequest<bool>;
+    public sealed record class UpdateEmployeeCommand(string? id, int Age, string? Name, string? Position, string? CompanyID, int Salary) : IRequest<bool>;
 }
