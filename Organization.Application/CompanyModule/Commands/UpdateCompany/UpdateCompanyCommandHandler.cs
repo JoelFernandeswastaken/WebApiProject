@@ -8,10 +8,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Organization.Domain.Common.Errors;
+using ErrorOr;
 
 namespace Organization.Application.CompanyModule.Commands.UpdateCompany
 {
-    public record class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyCommand, bool>
+    public record class UpdateCompanyCommandHandler : IRequestHandler<UpdateCompanyCommand, ErrorOr<bool>>
     {
         private readonly IUnitOfWork _unitOfWork;
         public UpdateCompanyCommandHandler(IUnitOfWork unitOfWork)
@@ -19,11 +21,15 @@ namespace Organization.Application.CompanyModule.Commands.UpdateCompany
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> Handle(UpdateCompanyCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<bool>> Handle(UpdateCompanyCommand request, CancellationToken cancellationToken)
         {
             var requiredCompany = await _unitOfWork.Companies.GetByIdAsync(request.Id);
             if (requiredCompany == null || requiredCompany.Id != request.Id)
-                throw new CompanyNotFoundException("Cound not find company with given ID");
+            {
+                //  throw new CompanyNotFoundException("Cound not find company with given ID");
+                return Errors.Company.CompanyDoesNotExist($"Cound not find company with gived ID: {request.Id}");
+            }
+
 
             requiredCompany.Name = request.Name;
             requiredCompany.Address = request.Address;
@@ -32,8 +38,9 @@ namespace Organization.Application.CompanyModule.Commands.UpdateCompany
             _unitOfWork.BeginTransaction();
             bool result = await _unitOfWork.Companies.UpdateAsync(requiredCompany);
             _unitOfWork.CommitAndCloseConnection();
+            if (result) return true;
 
-            return result;
+            return Errors.UnexpectedErrors.InteralServerError("Something went wrong");
         }
     }
 }

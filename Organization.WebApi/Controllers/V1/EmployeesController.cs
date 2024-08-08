@@ -15,7 +15,7 @@ namespace Organization.Presentation.Api.Controllers.V1
     // [Route("[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
-    public class EmployeesController : Controller
+    public class EmployeesController : BaseAPIController
     {
         private IUnitOfWork _unitOfWork;
         public string sqlServerDateFormat = "yyyy-dd-MM HH:mm:ss";

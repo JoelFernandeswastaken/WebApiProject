@@ -7,8 +7,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ErrorOr;
 
 namespace Organization.Application.CompanyModule.Queries.GetCompanyByID
 {
-    public sealed record class GetCompanyByIDQuery(string id) : IRequest<CompanyResponse>;
+    public sealed record class GetCompanyByIDQuery(string id) : IRequest<ErrorOr<CompanyResponse>>;
 }

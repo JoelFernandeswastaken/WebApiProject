@@ -26,7 +26,7 @@ namespace Organization.Presentation.Api.Controllers.V2
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
 
-    public class EmployeesController : Controller
+    public class EmployeesController : BaseAPIController
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISender _sender;

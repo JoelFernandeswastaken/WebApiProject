@@ -17,7 +17,7 @@ namespace Organization.Presentation.Api.Controllers.V1
     // [Route("[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
-    public class CompaniesController : Controller
+    public class CompaniesController : BaseAPIController
     {
         private readonly IUnitOfWork _unitOfwork;
         public CompaniesController(IUnitOfWork unitOfWork)

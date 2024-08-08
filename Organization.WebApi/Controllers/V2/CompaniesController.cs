@@ -1,6 +1,8 @@
-﻿using MapsterMapper;
+﻿using ErrorOr;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO.Request;
 using Organization.Application.Common.Exceptions;
@@ -16,6 +18,7 @@ using Organization.Domain.Company;
 using Organization.Domain.Company.Models;
 using Organization.Domain.Employee.Models;
 using Organization.Infrastructure.Persistance;
+using System.Diagnostics.Tracing;
 using System.Runtime.InteropServices;
 
 namespace Organization.Presentation.Api.Controllers.V2
@@ -25,7 +28,7 @@ namespace Organization.Presentation.Api.Controllers.V2
     // [Route("v2/[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-    public class CompaniesController : Controller
+    public class CompaniesController : BaseAPIController
     {
         private readonly IUnitOfWork _unitOfwork;
         private readonly ISender _sender; // iSender to send request to handlers
@@ -73,11 +76,15 @@ namespace Organization.Presentation.Api.Controllers.V2
         {
             var getCompanyByIDQuery = new GetCompanyByIDQuery(id);
             var result = await _sender.Send(getCompanyByIDQuery);
-            if (result == null)
-            {
-                throw new CompanyNotFoundException("Cound not find company with given ID");
-            }
-            else { return Ok(result); }
+            return result.Match(
+                p => Ok(p),
+                errors => Problem(errors)
+            );
+            //if (result == null)
+            //{
+            //    throw new CompanyNotFoundException("Cound not find company with given ID");
+            //}
+            //else { return Ok(result); }
         }
 
         /// <summary>
@@ -91,8 +98,12 @@ namespace Organization.Presentation.Api.Controllers.V2
         {
             // var addCompanyCommand = new AddCompanyCommand(companyRequest.Name, companyRequest.Address, companyRequest.Country);
             var addCompanyCommand = _mapper.Map<AddCompanyCommand>(companyRequest);
-            var id = _sender.Send(addCompanyCommand);
-            return CreatedAtAction("GetCompanyByid", new { id }, companyRequest);
+            var id = await _sender.Send(addCompanyCommand);
+            return id.Match(
+                p => CreatedAtAction("GetCompanyByid", new { p }, companyRequest),
+                errors => Problem(errors)
+            );
+            // return CreatedAtAction("GetCompanyByid", new { id }, companyRequest);
 
         }
 
@@ -110,7 +121,11 @@ namespace Organization.Presentation.Api.Controllers.V2
             // var updateCompanyCommmand = new UpdateCompanyCommand(id, companyRequest.Name, companyRequest.Address, companyRequest.Country);
             var updateCompanyCommand = _mapper.Map<UpdateCompanyCommand>((id, companyRequest));
             var result = await _sender.Send(updateCompanyCommand);
-            return result ? Ok("Record Updated successfully") : BadRequest("Something went wrong");
+            return result.Match(
+                p => Ok("Record updated successfully"),
+                errors => Problem(errors)
+            );
+            // return result ? Ok("Record Updated successfully") : BadRequest("Something went wrong");
         }
 
         /// <summary>
@@ -125,14 +140,17 @@ namespace Organization.Presentation.Api.Controllers.V2
         {
             // var deleteCompanyCommand = new DeleteCompanyCommand(id, deleteAssociations);
             var deleteCompanyCommand = _mapper.Map<DeleteCompanyCommand>((id, deleteAssociations));
-            var rowsAffected = await _sender.Send(deleteCompanyCommand);    
-
-            if (rowsAffected == 0)
-                return Ok("No rows Affected");
-            else if (rowsAffected > 0)
-                return Ok($"{rowsAffected} rows Affected");
-            else
-                return BadRequest("Bad Request");
+            var rowsAffected = await _sender.Send(deleteCompanyCommand);
+            return rowsAffected.Match(
+                p => Ok($"{rowsAffected} rows affected"),
+                errors => Problem(errors)
+            );
+            //if (rowsAffected == 0)
+            //    return Ok("No rows Affected");
+            //else if (rowsAffected > 0)
+            //    return Ok($"{rowsAffected} rows Affected");
+            //else
+            //    return BadRequest("Bad Request");
 
         }
 

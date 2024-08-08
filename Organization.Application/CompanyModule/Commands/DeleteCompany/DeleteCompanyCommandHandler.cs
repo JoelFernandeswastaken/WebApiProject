@@ -6,29 +6,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ErrorOr;
+using Organization.Domain.Common.Errors;
 
 namespace Organization.Application.CompanyModule.Commands.DeleteCompany
 {
-    public class DeleteCompanyCommandHandler : IRequestHandler<DeleteCompanyCommand, int>
+    public class DeleteCompanyCommandHandler : IRequestHandler<DeleteCompanyCommand, ErrorOr<int>>
     {
         private readonly IUnitOfWork _unitOfWork;
         public DeleteCompanyCommandHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<int> Handle(DeleteCompanyCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<int>> Handle(DeleteCompanyCommand request, CancellationToken cancellationToken)
         {
             var deleteCompany = await _unitOfWork.Companies.GetByIdAsync(request.id);
             if (deleteCompany == null || deleteCompany.Id != request.id)
             {
-                throw new CompanyNotFoundException("Could not find company with given ID");
+                return Errors.Company.CompanyDoesNotExist($"Company with the id {request.id} does not exist");
+                // throw new CompanyNotFoundException("Could not find company with given ID");
             }
 
             _unitOfWork.BeginTransaction();
             int rowsAffected = await _unitOfWork.Companies.SoftDeleteAsync(request.id, request.deleteAssociations);
             _unitOfWork.CommitAndCloseConnection();
 
-            return rowsAffected;
+            if (rowsAffected >= 0) return rowsAffected;
+
+            return Errors.UnexpectedErrors.InteralServerError();
         }
     }
 }
