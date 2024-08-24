@@ -62,7 +62,11 @@ namespace Organization.Presentation.Api.Controllers.V2
         {
             var getCompaniesQuery = new GetCompaniesQuery(queryParameters);
             var result = await _sender.Send(getCompaniesQuery);
-            return Ok(result);
+            return result.Match(
+                p => Ok(p),
+                errors => Problem(errors)
+            );
+            // return Ok(result);
         }
 
         /// <summary>
