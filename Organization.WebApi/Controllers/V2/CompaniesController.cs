@@ -169,7 +169,11 @@ namespace Organization.Presentation.Api.Controllers.V2
             var company = new Company();
             var getTotalCountQuery = new GetTotalCountQuery(company);
             var count = await _sender.Send(getTotalCountQuery);
-            return Ok(count);
+            return count.Match(
+                p => Ok(count),
+                errors => Problem(errors)
+            );
+            // return Ok(count);
         }
     }
 }
