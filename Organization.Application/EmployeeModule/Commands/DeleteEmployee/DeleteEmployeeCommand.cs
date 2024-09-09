@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ErrorOr;
 
 namespace Organization.Application.EmployeeModule.Commands.DeleteEmployee
 {
-    public sealed record class DeleteEmployeeCommand(string id) : IRequest<int>;
+    public sealed record class DeleteEmployeeCommand(string id) : IRequest<ErrorOr<int>>;
 }

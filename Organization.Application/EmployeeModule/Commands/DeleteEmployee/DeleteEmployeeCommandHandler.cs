@@ -7,17 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Text.Unicode;
 using System.Threading.Tasks;
+using ErrorOr;  
 
 namespace Organization.Application.EmployeeModule.Commands.DeleteEmployee
 {
-    public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeCommand, int>
+    public class DeleteEmployeeCommandHandler : IRequestHandler<DeleteEmployeeCommand, ErrorOr<int>>
     {
         private readonly IUnitOfWork _unitOfWork;
         public DeleteEmployeeCommandHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<int> Handle(DeleteEmployeeCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<int>> Handle(DeleteEmployeeCommand request, CancellationToken cancellationToken)
         {
             var employeeToDelete = await _unitOfWork.Employees.GetByIdAsync(request.id);
             if (employeeToDelete == null)

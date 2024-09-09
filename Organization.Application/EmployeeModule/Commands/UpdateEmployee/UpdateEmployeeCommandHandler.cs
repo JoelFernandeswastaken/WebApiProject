@@ -7,10 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ErrorOr;
 
 namespace Organization.Application.EmployeeModule.Commands.UpdateEmployee
 {
-    public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeCommand, bool>
+    public class UpdateEmployeeCommandHandler : IRequestHandler<UpdateEmployeeCommand, ErrorOr<bool>>
     {
         private readonly IUnitOfWork _unitOfWork;
         public UpdateEmployeeCommandHandler(IUnitOfWork unitOfWork)
@@ -18,7 +19,7 @@ namespace Organization.Application.EmployeeModule.Commands.UpdateEmployee
             _unitOfWork = unitOfWork;   
         }
 
-        public async Task<bool> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<bool>> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
         {
             var requiredEmployee = await _unitOfWork.Employees.GetByIdAsync(request.id);
 

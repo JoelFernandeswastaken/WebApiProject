@@ -8,10 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ErrorOr;
 
 namespace Organization.Application.EmployeeModule.Queries.GetEmployees
 {
-    public class GetEmployeesQueryHandler : IRequestHandler<GetEmployeesQuery, PageList<EmployeeResponse>>
+    public class GetEmployeesQueryHandler : IRequestHandler<GetEmployeesQuery, ErrorOr<PageList<EmployeeResponse>>>
     {
         private readonly IUnitOfWork _unitOfWork;
         public GetEmployeesQueryHandler(IUnitOfWork unitOfWork)
@@ -19,7 +20,7 @@ namespace Organization.Application.EmployeeModule.Queries.GetEmployees
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<PageList<EmployeeResponse>> Handle(GetEmployeesQuery request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<PageList<EmployeeResponse>>> Handle(GetEmployeesQuery request, CancellationToken cancellationToken)
         {
             var result = await _unitOfWork.Employees.GetEmployeesByQueryAsyc(request.parameters);
             return result;

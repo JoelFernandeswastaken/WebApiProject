@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Organization.Application.Common.DTO.Response
 {
+    public sealed record class EmployeeResponseV2(string? Name, int Age, string? Position, int Salary, string? CreatedOn);
     public class EmployeeResponse
     {
         public string Name { get; set; } = string.Empty;

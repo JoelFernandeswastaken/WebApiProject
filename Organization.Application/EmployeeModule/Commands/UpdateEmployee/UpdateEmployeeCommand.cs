@@ -7,8 +7,9 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ErrorOr;
 
 namespace Organization.Application.EmployeeModule.Commands.UpdateEmployee
 {
-    public sealed record class UpdateEmployeeCommand(string? id, int Age, string? Name, string? Position, string? CompanyID, int Salary) : IRequest<bool>;
+    public sealed record class UpdateEmployeeCommand(string? id, int Age, string? Name, string? Position, string? CompanyID, int Salary) : IRequest<ErrorOr<bool>>;
 }

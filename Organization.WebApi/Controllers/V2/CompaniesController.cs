@@ -146,7 +146,7 @@ namespace Organization.Presentation.Api.Controllers.V2
             var deleteCompanyCommand = _mapper.Map<DeleteCompanyCommand>((id, deleteAssociations));
             var rowsAffected = await _sender.Send(deleteCompanyCommand);
             return rowsAffected.Match(
-                p => Ok($"{rowsAffected} rows affected"),
+                p => Ok($"{p} rows affected"),
                 errors => Problem(errors)
             );
             //if (rowsAffected == 0)
@@ -170,7 +170,7 @@ namespace Organization.Presentation.Api.Controllers.V2
             var getTotalCountQuery = new GetTotalCountQuery(company);
             var count = await _sender.Send(getTotalCountQuery);
             return count.Match(
-                p => Ok(count),
+                p => Ok($"{p} companies exist."),
                 errors => Problem(errors)
             );
             // return Ok(count);

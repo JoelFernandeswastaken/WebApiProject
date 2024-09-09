@@ -6,17 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ErrorOr;
 
 namespace Organization.Application.EmployeeModule.Commands.AddEmployee
 {
-    public class AddEmployeeCommandHandler : IRequestHandler<AddEmployeeCommand, string>
+    public class AddEmployeeCommandHandler : IRequestHandler<AddEmployeeCommand, ErrorOr<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
         public AddEmployeeCommandHandler(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
-        public async Task<string> Handle(AddEmployeeCommand request, CancellationToken cancellationToken)
+        public async Task<ErrorOr<string>> Handle(AddEmployeeCommand request, CancellationToken cancellationToken)
         {
             string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
 
