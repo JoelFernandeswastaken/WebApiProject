@@ -18,8 +18,12 @@ using Organization.Domain.Company;
 using Organization.Domain.Company.Models;
 using Organization.Domain.Employee.Models;
 using Organization.Infrastructure.Persistance;
+using Organization.Application.Common.Utilities;
+using Serilog.Context;
 using System.Diagnostics.Tracing;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Organization.Infrastructure.Utilities;
 
 namespace Organization.Presentation.Api.Controllers.V2
 {
@@ -33,11 +37,13 @@ namespace Organization.Presentation.Api.Controllers.V2
         private readonly IUnitOfWork _unitOfwork;
         private readonly ISender _sender; // iSender to send request to handlers
         private readonly IMapper _mapper;
-        public CompaniesController(IUnitOfWork unitOfWork, ISender sender, IMapper mapper)
+        private readonly ILogger _logger;   
+        public CompaniesController(IUnitOfWork unitOfWork, ISender sender, IMapper mapper, ILogger<CompaniesController> Logger)
         {
             _unitOfwork = unitOfWork;
             _sender = sender;
             _mapper = mapper;
+            _logger = Logger;
         }
         /// <summary>
         /// Get all companies(pagination not implemented)
@@ -47,8 +53,17 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("GetCompanies")]
         public async Task<IActionResult> GetCompanies()
         {
+            var newGuid = new LoggerGuid();
+            string corrID = newGuid.GenerateCorrelationID();
             // await Task.CompletedTask;
+            #region LogContext
+            LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
+            LogContext.PushProperty("MethodName", "CompaniesController.GetCompanies");
+            LogContext.PushProperty("CorrelationID", corrID);
+            #endregion
+            _logger.LogInformation("GetCompanies API called.");
             var companies = await _unitOfwork.Companies.GetAsyncV1();
+            _logger.LogInformation("GetCompanies API Completed.");
             return Ok(companies);
         }
         /// <summary>
@@ -60,13 +75,22 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("GetCompaniesV2")]
         public async Task<IActionResult> GetCompanies([FromQuery] CompanyQueryParameters queryParameters)
         {
+            var newGuid = new LoggerGuid();
+            string corrID = newGuid.GenerateCorrelationID();
+            #region LogContext
+            LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
+            LogContext.PushProperty("MethodName", "CompaniesController.GetCompanies");
+            LogContext.PushProperty("CorrelationID", corrID);
+            #endregion
+
+            _logger.LogInformation("GetCompanies API called.");
             var getCompaniesQuery = new GetCompaniesQuery(queryParameters);
             var result = await _sender.Send(getCompaniesQuery);
+            _logger.LogInformation("GetCompanies API Completed.");
             return result.Match(
                 p => Ok(p),
                 errors => Problem(errors)
             );
-            // return Ok(result);
         }
 
         /// <summary>
@@ -78,17 +102,20 @@ namespace Organization.Presentation.Api.Controllers.V2
         [HttpGet("company/{id}")]
         public async Task<IActionResult> GetCompanyByid(string id)
         {
+            var newGuid = new LoggerGuid();
+            string corrID = newGuid.GenerateCorrelationID();
+            #region LogContext
+            LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
+            LogContext.PushProperty("MethodName", "CompaniesController.GetComanyById");
+            LogContext.PushProperty("CorrelationID", corrID);
+            #endregion
+
             var getCompanyByIDQuery = new GetCompanyByIDQuery(id);
             var result = await _sender.Send(getCompanyByIDQuery);
             return result.Match(
                 p => Ok(p),
                 errors => Problem(errors)
             );
-            //if (result == null)
-            //{
-            //    throw new CompanyNotFoundException("Cound not find company with given ID");
-            //}
-            //else { return Ok(result); }
         }
 
         /// <summary>
@@ -100,6 +127,14 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("AddCompany")]
         public async Task<IActionResult> AddCompany(CompanyRequest companyRequest)
         {
+            var newGuid = new LoggerGuid();
+            string corrID = newGuid.GenerateCorrelationID();
+            #region LogContext
+            LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
+            LogContext.PushProperty("MethodName", "CompaniesController.AddCompany");
+            LogContext.PushProperty("CorrelationID", corrID);
+            #endregion
+
             // var addCompanyCommand = new AddCompanyCommand(companyRequest.Name, companyRequest.Address, companyRequest.Country);
             var addCompanyCommand = _mapper.Map<AddCompanyCommand>(companyRequest);
             var id = await _sender.Send(addCompanyCommand);
@@ -107,7 +142,6 @@ namespace Organization.Presentation.Api.Controllers.V2
                 p => CreatedAtAction("GetCompanyByid", new { p }, companyRequest),
                 errors => Problem(errors)
             );
-            // return CreatedAtAction("GetCompanyByid", new { id }, companyRequest);
 
         }
 
@@ -122,6 +156,14 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("UpdateCompany")]
         public async Task<IActionResult> UpdateCompany(string id, CompanyRequest companyRequest)
         {
+            var newGuid = new LoggerGuid();
+            string corrID = newGuid.GenerateCorrelationID();
+            #region LogContext
+            LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
+            LogContext.PushProperty("MethodName", "CompaniesController.UpdateCompany");
+            LogContext.PushProperty("CorrelationID", corrID);
+            #endregion
+
             // var updateCompanyCommmand = new UpdateCompanyCommand(id, companyRequest.Name, companyRequest.Address, companyRequest.Country);
             var updateCompanyCommand = _mapper.Map<UpdateCompanyCommand>((id, companyRequest));
             var result = await _sender.Send(updateCompanyCommand);
@@ -142,6 +184,13 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("DeleteComany")]
         public async Task<IActionResult> DeleteCompany(string id, bool deleteAssociations)
         {
+            var newGuid = new LoggerGuid();
+            string corrID = newGuid.GenerateCorrelationID();
+            #region LogContext
+            LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
+            LogContext.PushProperty("MethodName", "CompaniesController.DeleteCompany");
+            LogContext.PushProperty("CorrelationID", corrID);
+            #endregion
             // var deleteCompanyCommand = new DeleteCompanyCommand(id, deleteAssociations);
             var deleteCompanyCommand = _mapper.Map<DeleteCompanyCommand>((id, deleteAssociations));
             var rowsAffected = await _sender.Send(deleteCompanyCommand);
@@ -166,6 +215,14 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("GetTotalCount")]
         public async Task<IActionResult> GetTotalCount()
         {
+            var newGuid = new LoggerGuid();
+            string corrID = newGuid.GenerateCorrelationID();
+            #region LogContext
+            LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
+            LogContext.PushProperty("MethodName", "CompaniesController.GetTotalCount");
+            LogContext.PushProperty("CorrelationID", corrID);
+            #endregion
+
             var company = new Company();
             var getTotalCountQuery = new GetTotalCountQuery(company);
             var count = await _sender.Send(getTotalCountQuery);
