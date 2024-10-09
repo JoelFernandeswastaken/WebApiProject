@@ -10,6 +10,7 @@ namespace Organization.Application.Common.Interfaces.Persistance
     {
         public ICompanyRepository Companies { get; }   
         public IEmployeeRepository Employees { get;  }
+        public IUserRepository Users { get; }
         void BeginTransaction();
         void Commit();
         void CommitAndCloseConnection();

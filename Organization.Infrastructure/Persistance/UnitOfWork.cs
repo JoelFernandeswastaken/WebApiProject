@@ -15,6 +15,7 @@ namespace Organization.Infrastructure.Persistance
         private readonly DapperDataContext _dapperDataContext;
         public ICompanyRepository Companies { get; private set; }
         public IEmployeeRepository Employees { get; private set; }
+        public IUserRepository Users { get; private set; }  
         public UnitOfWork(DapperDataContext dapperDataContext)
         {
             _dapperDataContext = dapperDataContext;
@@ -24,6 +25,7 @@ namespace Organization.Infrastructure.Persistance
         {
             Companies = new CompanyRepository(_dapperDataContext);
             Employees = new EmployeeRepository(_dapperDataContext);
+            Users = new UserRepository(_dapperDataContext);
         }
         public void BeginTransaction()
         {

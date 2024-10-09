@@ -215,5 +215,19 @@ namespace Organization.Infrastructure.Persistance.Repositories
             }                
         }
 
+        public async Task<IEnumerable<T>> GetByColumnValueAsync(string columnName, string columnValue)
+        {
+            string tableName = typeof(T).GetDbTableName();
+            string columns = typeof(T).GetDbTableColumnNames(new string[0]);
+            var parameters = new DynamicParameters();
+
+            parameters.Add("tableName", tableName, DbType.String, ParameterDirection.Input, size: 50);
+            parameters.Add("columns", columns, DbType.String, ParameterDirection.Input, size: 150);
+            parameters.Add("columnName", columnName, DbType.String, ParameterDirection.Input, size: 50);
+            parameters.Add("columnValue", columnValue, DbType.String, ParameterDirection.Input, size: 50);
+
+            var result = await _dapperDataContext.Connection.QueryAsync<T>("spGetRecordsBySpecificColumn", parameters, _dapperDataContext.Transaction, commandType: System.Data.CommandType.StoredProcedure);
+            return result;
+        }
     }
 }

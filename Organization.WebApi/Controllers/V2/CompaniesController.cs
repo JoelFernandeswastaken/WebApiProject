@@ -53,7 +53,7 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("GetCompanies")]
         public async Task<IActionResult> GetCompanies()
         {
-            var newGuid = new LoggerGuid();
+            var newGuid = new CustomGuid();
             string corrID = newGuid.GenerateCorrelationID();
             // await Task.CompletedTask;
             #region LogContext
@@ -75,7 +75,7 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("GetCompaniesV2")]
         public async Task<IActionResult> GetCompanies([FromQuery] CompanyQueryParameters queryParameters)
         {
-            var newGuid = new LoggerGuid();
+            var newGuid = new CustomGuid();
             string corrID = newGuid.GenerateCorrelationID();
             #region LogContext
             LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
@@ -102,7 +102,7 @@ namespace Organization.Presentation.Api.Controllers.V2
         [HttpGet("company/{id}")]
         public async Task<IActionResult> GetCompanyByid(string id)
         {
-            var newGuid = new LoggerGuid();
+            var newGuid = new CustomGuid();
             string corrID = newGuid.GenerateCorrelationID();
             #region LogContext
             LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
@@ -127,7 +127,7 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("AddCompany")]
         public async Task<IActionResult> AddCompany(CompanyRequest companyRequest)
         {
-            var newGuid = new LoggerGuid();
+            var newGuid = new CustomGuid();
             string corrID = newGuid.GenerateCorrelationID();
             #region LogContext
             LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
@@ -156,7 +156,7 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("UpdateCompany")]
         public async Task<IActionResult> UpdateCompany(string id, CompanyRequest companyRequest)
         {
-            var newGuid = new LoggerGuid();
+            var newGuid = new CustomGuid();
             string corrID = newGuid.GenerateCorrelationID();
             #region LogContext
             LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
@@ -184,7 +184,7 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("DeleteComany")]
         public async Task<IActionResult> DeleteCompany(string id, bool deleteAssociations)
         {
-            var newGuid = new LoggerGuid();
+            var newGuid = new CustomGuid();
             string corrID = newGuid.GenerateCorrelationID();
             #region LogContext
             LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
@@ -215,7 +215,7 @@ namespace Organization.Presentation.Api.Controllers.V2
         [Route("GetTotalCount")]
         public async Task<IActionResult> GetTotalCount()
         {
-            var newGuid = new LoggerGuid();
+            var newGuid = new CustomGuid();
             string corrID = newGuid.GenerateCorrelationID();
             #region LogContext
             LogContext.PushProperty("ControllerName", "CompaniesControllerV2");
