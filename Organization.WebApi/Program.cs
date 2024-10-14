@@ -49,6 +49,8 @@ try
 
     app.UseSerilogRequestLogging();
 
+    app.UseAuthentication();
+
     app.UseAuthorization();
 
     app.MapControllers();

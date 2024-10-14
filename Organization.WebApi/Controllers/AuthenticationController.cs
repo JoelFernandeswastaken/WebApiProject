@@ -2,6 +2,7 @@
 using Mapster;
 using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO.Request;
@@ -15,6 +16,7 @@ namespace Organization.Presentation.Api.Controllers
     [ApiController]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
+    [AllowAnonymous]
     public class AuthenticationController : BaseAPIController
     {
         private readonly ISender _sender;

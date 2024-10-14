@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Organization.Application.Common.DTO.Request;
 using Organization.Application.Common.DTO.Response;
 using Organization.Application.Common.Exceptions;
@@ -17,6 +18,7 @@ namespace Organization.Presentation.Api.Controllers.V1
     // [Route("[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("1.0")]
+    [Authorize]
     public class CompaniesController : BaseAPIController
     {
         private readonly IUnitOfWork _unitOfwork;

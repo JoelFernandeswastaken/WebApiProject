@@ -10,5 +10,6 @@ namespace Organization.Application.Common.Utilities
     public static class GlobalConstants
     {
         public const string ApplicationName = "Organization.API";
+        public const string JWT = "Jwt";
     }
 }

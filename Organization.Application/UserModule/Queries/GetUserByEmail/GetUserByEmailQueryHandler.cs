@@ -25,6 +25,7 @@ namespace Organization.Application.UserModule.Queries.GetUserByEmail
                 return Errors.Users.UserNotFound();
             return new UserDetails()
             {
+                Id = result.Id,
                 Email = result.Email,
                 Username = result.Username,
                 PasswordHash = result.PasswordHash,

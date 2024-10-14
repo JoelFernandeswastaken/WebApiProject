@@ -24,6 +24,7 @@ using System.Diagnostics.Tracing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Organization.Infrastructure.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Organization.Presentation.Api.Controllers.V2
 {
@@ -32,6 +33,7 @@ namespace Organization.Presentation.Api.Controllers.V2
     // [Route("v2/[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
+    [Authorize]
     public class CompaniesController : BaseAPIController
     {
         private readonly IUnitOfWork _unitOfwork;

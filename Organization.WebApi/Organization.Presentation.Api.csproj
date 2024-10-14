@@ -8,12 +8,14 @@
 
 	<PropertyGroup>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
-		<NoWarn>$(NoWarn);1591</NoWarn> <!--to suppress warinins if documentation file not found.-->
+		<NoWarn>$(NoWarn);1591</NoWarn>
+		<UserSecretsId>2b16ce97-b4f7-447a-99ef-d53bbae6c0c6</UserSecretsId> <!--to suppress warinins if documentation file not found.-->
 		 <!--<NoWarn>1591</NoWarn>-->
 	</PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="12.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.35" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />

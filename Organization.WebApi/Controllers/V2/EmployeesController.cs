@@ -1,5 +1,6 @@
 ﻿using MapsterMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO.Request;
@@ -25,7 +26,7 @@ namespace Organization.Presentation.Api.Controllers.V2
     // [Route("v2/[controller]")]
     [Route("v{v:apiVersion}/[controller]")]
     [ApiVersion("2.0")]
-
+    [Authorize]
     public class EmployeesController : BaseAPIController
     {
         private readonly IUnitOfWork _unitOfWork;
