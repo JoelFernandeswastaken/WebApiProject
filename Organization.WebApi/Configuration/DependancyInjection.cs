@@ -93,6 +93,7 @@ namespace Organization.Presentation.Api.Configuration
             })
             .AddJwtBearer(x =>
             {
+                x.RequireHttpsMetadata = false;
                 x.SaveToken = true;
                 x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
                 {
