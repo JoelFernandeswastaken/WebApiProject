@@ -16,7 +16,7 @@ namespace Organization.Infrastructure.Configuration
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             services.AddScoped<DapperDataContext>();
-            services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+            services.AddScoped<IAuthTokenService, AuthTokenService>();
             services.ConfigureOptions<JwtOptionsSetup>();
             return services;
         }

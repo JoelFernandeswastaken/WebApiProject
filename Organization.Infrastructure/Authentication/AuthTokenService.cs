@@ -13,10 +13,10 @@ using System.Threading.Tasks;
 
 namespace Organization.Infrastructure.Authentication
 {
-    public class JwtTokenGenerator : IJwtTokenGenerator
+    public class AuthTokenService : IAuthTokenService
     {
         private readonly JwtOptions _options;
-        public JwtTokenGenerator(IOptions<JwtOptions> options)
+        public AuthTokenService(IOptions<JwtOptions> options)
         {
             _options = options.Value;
         }         

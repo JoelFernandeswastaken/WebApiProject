@@ -14,8 +14,8 @@ namespace Organization.Application.UserModule.Queries.LoginUser
     public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, ErrorOr<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IJwtTokenGenerator _jwtTokenGenerator;
-        public LoginUserQueryHandler(IUnitOfWork unitOfWork, IJwtTokenGenerator jwtTokenGenertor)
+        private readonly IAuthTokenService _jwtTokenGenerator;
+        public LoginUserQueryHandler(IUnitOfWork unitOfWork, IAuthTokenService jwtTokenGenertor)
         {
             _unitOfWork = unitOfWork;
             _jwtTokenGenerator = jwtTokenGenertor;  
