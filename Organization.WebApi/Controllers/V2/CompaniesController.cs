@@ -141,7 +141,7 @@ namespace Organization.Presentation.Api.Controllers.V2
             var addCompanyCommand = _mapper.Map<AddCompanyCommand>(companyRequest);
             var id = await _sender.Send(addCompanyCommand);
             return id.Match(
-                p => CreatedAtAction("GetCompanyByid", new { p }, companyRequest),
+                p => CreatedAtAction("GetCompanyByid", new { id = p }, companyRequest),
                 errors => Problem(errors)
             );
 

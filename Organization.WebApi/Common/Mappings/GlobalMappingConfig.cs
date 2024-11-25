@@ -5,6 +5,7 @@ using Organization.Application.CompanyModule.Commands.UpdateCompany;
 using Organization.Application.EmployeeModule.Commands.AddEmployee;
 using Organization.Application.EmployeeModule.Commands.UpdateEmployee;
 using Organization.Application.EmployeeModule.Queries.GetEmployees;
+using Organization.Application.UserModule.Commands.RefreshToken;
 using Organization.Application.UserModule.Commands.RegisterUser;
 using Organization.Application.UserModule.Queries.GetUserByEmail;
 using Organization.Application.UserModule.Queries.LoginUser;
@@ -41,6 +42,10 @@ namespace Organization.Presentation.Api.Common.Mappings
             typeAdapterConfig.NewConfig<LoginUserRequest, LoginUserQuery>()
                 .Map(dest => dest.email, src => src.Email)
                 .Map(dest => dest.password, src => src.Password);
+
+            typeAdapterConfig.NewConfig<RefreshTokenRequest, RefreshTokenCommand>()
+                .Map(dest => dest.accessToken, src => src.accessToken)
+                .Map(dest => dest.refreshToken, src => src.refreshToken);
         }
     }
 }

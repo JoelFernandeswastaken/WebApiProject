@@ -14,18 +14,23 @@ namespace Organization.Application.UserModule.Queries.LoginUser
     public class LoginUserQueryHandler : IRequestHandler<LoginUserQuery, ErrorOr<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IAuthTokenService _jwtTokenGenerator;
-        public LoginUserQueryHandler(IUnitOfWork unitOfWork, IAuthTokenService jwtTokenGenertor)
+        private readonly IAuthTokenService _authTokenService;
+        public LoginUserQueryHandler(IUnitOfWork unitOfWork, IAuthTokenService authTokenService)
         {
             _unitOfWork = unitOfWork;
-            _jwtTokenGenerator = jwtTokenGenertor;  
+            _authTokenService = authTokenService;  
         }
         public async Task<ErrorOr<string>> Handle(LoginUserQuery request, CancellationToken cancellationToken)
         {
             var user = await _unitOfWork.Users.GetUserByEmail("Email", request.email);
             if (user is not null && BCrypt.Net.BCrypt.Verify(request.password, user.PasswordHash))
+            {
+                string accessToken = await _authTokenService.DoTokenCreation(user);
+
+                return accessToken;
+            }
                 // return "Token";
-                return await _jwtTokenGenerator.GenerateToken(user);
+                // return await _jwtTokenGenerator.GenerateToken(user);
             return Errors.Users.IncorrectEmailOrPassword();
         }
     }

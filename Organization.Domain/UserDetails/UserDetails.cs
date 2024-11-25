@@ -22,5 +22,9 @@ namespace Organization.Domain.UserDetails
         public string PasswordHash { get; set; }
         [ColumnName("IsDeleted")]
         public bool IsDeleted { get; set; }
+        [ColumnName("RefreshToken")]
+        public string RefreshToken { get; set; }
+        [ColumnName("TokenExpiration")]
+        public string TokenExpiration { get; set; }  
     }
 }

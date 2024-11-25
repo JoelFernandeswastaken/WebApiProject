@@ -1,6 +1,7 @@
 ﻿using Azure.Core;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Organization.Application.Common.PipelineBehaviours;
 using Serilog;
@@ -22,7 +23,7 @@ namespace Organization.Application.Configuration
             {
                 config.RegisterServicesFromAssemblies(typeof(DependancyInjection).Assembly);
             });
-
+            services.AddHttpContextAccessor();
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingPipelineBehaviour<,>));
             services.AddValidatorsFromAssembly(typeof(DependancyInjection).Assembly);
 

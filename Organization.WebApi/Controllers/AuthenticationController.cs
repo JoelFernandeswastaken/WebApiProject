@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Validations;
 using Organization.Application.Common.DTO.Request;
+using Organization.Application.UserModule.Commands.RefreshToken;
 using Organization.Application.UserModule.Commands.RegisterUser;
 using Organization.Application.UserModule.Queries.GetUserByEmail;
 using Organization.Application.UserModule.Queries.LoginUser;
@@ -52,6 +53,17 @@ namespace Organization.Presentation.Api.Controllers
         {
             var LoginUserQuery = _mapper.Map<LoginUserQuery>(request);
             var result = await _sender.Send(LoginUserQuery);
+            return result.Match(
+                p => Ok(p),
+                errors => Problem(errors)
+            );
+        }
+        [HttpPost]
+        [Route("RefreshToken")]
+        public async Task<IActionResult> RefreshToken(RefreshTokenRequest request)
+        {
+            var refreshTokenCommand = _mapper.Map<RefreshTokenCommand>(request);
+            var result = await _sender.Send(refreshTokenCommand);
             return result.Match(
                 p => Ok(p),
                 errors => Problem(errors)

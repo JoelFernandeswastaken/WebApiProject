@@ -35,7 +35,7 @@ namespace Organization.Application.CompanyModule.Commands.AddCompany
             string guid = Guid.NewGuid().ToString().Replace("/", "_").Replace("+", "-").Substring(0, 22);
 
             _unitOfWork.BeginTransaction();
-            var id = await _unitOfWork.Companies.AddAsync(new Company()
+            var newCompanyID = await _unitOfWork.Companies.AddAsync(new Company()
             {
                 Id = guid,
                 Name = companyRequest.Name,
@@ -44,7 +44,10 @@ namespace Organization.Application.CompanyModule.Commands.AddCompany
             }); //Alter stored procedure to return id of company added
             _unitOfWork.CommitAndCloseConnection();
 
-            return id;
+            if (!string.IsNullOrEmpty(newCompanyID))
+                return newCompanyID;
+
+            return Errors.UnexpectedErrors.InteralServerError();
         }
     }
 }
